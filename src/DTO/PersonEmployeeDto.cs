@@ -1,6 +1,6 @@
 ﻿namespace DTO;
 
-public class PersonEmployee
+public class PersonEmployeeDto
 {
     public int Id { get; set; }
     public string FirstName { get; set; } = null!;

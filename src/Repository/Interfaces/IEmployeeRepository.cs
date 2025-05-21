@@ -1,6 +1,6 @@
 ﻿using Models;
 
-namespace Repository;
+namespace Repository.Interfaces;
 
 public interface IEmployeeRepository
 {

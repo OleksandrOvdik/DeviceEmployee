@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
-using DTO;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Models;
+using Repository.Interfaces;
 
 namespace Repository;
 
@@ -29,14 +28,14 @@ public class DeviceRepository : IDeviceRepository
 
     }
     
-    public async Task<Device?> GetDevicesById(int deviceId)
+    public async Task<Device> GetDevicesById(int deviceId)
     {
-        return await _context.Devices
+        return (await _context.Devices
             .Include(x => x.DeviceType)
             .Include(emp => emp.DeviceEmployees)
             .ThenInclude(emp => emp.Employee)
             .ThenInclude(p => p.Person)
-            .FirstOrDefaultAsync(e => e.Id == deviceId);
+            .FirstOrDefaultAsync(e => e.Id == deviceId))!;
 
         
     }

@@ -1,6 +1,7 @@
 ﻿using DTO;
 using Models;
 using Repository;
+using Repository.Interfaces;
 using Services.Interfaces;
 
 namespace Services;
@@ -20,6 +21,7 @@ public class EmployeeService : IEmployeeService
     {
         
         var employees = await _employeeRepository.GetAllEmployees();
+        if (employees == null) throw new KeyNotFoundException("No employees found");
         var obj = new List<EmployeeDto>();
 
         foreach (var employee in employees)
@@ -35,13 +37,13 @@ public class EmployeeService : IEmployeeService
         
     }
 
-    public async Task<EmployeeById> GetEmployeeById(int id)
+    public async Task<EmployeeByIdDto> GetEmployeeById(int id)
     {
-        
         var employee = await _employeeRepository.GetEmployeeById(id);
-        return new EmployeeById()
+        if (employee == null) throw new KeyNotFoundException($"Employee with id {id} not found");
+        return new EmployeeByIdDto()
         {
-            Person = new PersonEmployee()
+            Person = new PersonEmployeeDto()
             {
                 Id = employee.Person.Id,
                 FirstName = employee.Person.FirstName,
@@ -58,8 +60,5 @@ public class EmployeeService : IEmployeeService
             },
             HireDate = employee.HireDate,
         };
-
-
-
     }
 }

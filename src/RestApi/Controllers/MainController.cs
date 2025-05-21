@@ -1,9 +1,6 @@
 ﻿using DTO;
 using Microsoft.AspNetCore.Mvc;
-using Models;
-using Services;
 using Services.Interfaces;
-
 namespace RestApi.Controllers;
 
 [ApiController]
@@ -22,14 +19,23 @@ public class MainController : ControllerBase
         
     }
     
-    
-
     [HttpGet]
     [Route("devices")]
     public async Task<ActionResult<List<AllDevicesDto>>> GetDevices()
     {
-        var devices = await _deviceService.GetDevices();
-        return Ok(devices);
+        try
+        {
+            var devices = await _deviceService.GetDevices();
+            return Ok(devices);
+        }
+        catch(FileNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpGet]
@@ -41,6 +47,10 @@ public class MainController : ControllerBase
             var result = await _deviceService.GetDevicesById(id);
             return Ok(result);
         }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
         catch (Exception e)
         {
             return BadRequest(e.Message);
@@ -49,14 +59,26 @@ public class MainController : ControllerBase
     
     
     [HttpPost]
+    [Route("devices")]
     public async Task<ActionResult<CreateUpdateDeviceDto>> CreateDevice(CreateUpdateDeviceDto deviceDto)
     {
-        var createdDevice = await _deviceService.CreateDevice(deviceDto);
-        return createdDevice;
+        try
+        {
+            var result = await _deviceService.CreateDevice(deviceDto);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
     
     
-    [HttpPut("{id}")]
+    [HttpPut("deivces/{id}")]
     public async Task<IActionResult> UpdateDevice(int id, CreateUpdateDeviceDto deviceDto)
     {
         try
@@ -68,13 +90,24 @@ public class MainController : ControllerBase
         {
             return NotFound();
         }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("devices/{id}")]
     public async Task<IActionResult> DeleteDevice(int id)
     {
-        await _deviceService.DeleteDevice(id);
-        return NoContent();
+        try
+        {
+            await _deviceService.DeleteDevice(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
 
@@ -82,8 +115,19 @@ public class MainController : ControllerBase
     [Route("employees")]
     public async Task<IActionResult> GetEmployees()
     {
-        var employees = await _employeeService.GetAllEmployees();
-        return Ok(employees);
+        try
+        {
+            var employees = await _employeeService.GetAllEmployees();
+            return Ok(employees);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return NotFound(e.Message);
+        }
     }
     
     
@@ -92,10 +136,19 @@ public class MainController : ControllerBase
     [Route("employees/{id}")]
     public async Task<IActionResult> GetEmployeeById(int id)
     {
-        var employee = await _employeeService.GetEmployeeById(id);
-        return Ok(employee);
+        try
+        {
+            var employee = await _employeeService.GetEmployeeById(id);
+            return Ok(employee);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return NotFound(e.Message);
+        }
     }
-    
-    
 }
 

@@ -1,7 +1,6 @@
-﻿using DTO;
-using Models;
+﻿using Models;
 
-namespace Repository;
+namespace Repository.Interfaces;
 
 public interface IDeviceRepository
 {

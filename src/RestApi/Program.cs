@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository;
+using Repository.Interfaces;
 using Services;
 using Services.Interfaces;
 
@@ -20,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
 
-builder.Services.AddTransient<IDeviceService, DeviceDeviceService>();
+builder.Services.AddTransient<IDeviceService, DeviceService>();
 builder.Services.AddTransient<IEmployeeService, EmployeeService>();
 
 

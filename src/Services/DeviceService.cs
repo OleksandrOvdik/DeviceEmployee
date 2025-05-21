@@ -1,18 +1,17 @@
 ﻿using System.Text.Json;
 using DTO;
-using Microsoft.EntityFrameworkCore;
 using Models;
-using Models; // Ensures the Employee class is included.
-using Repository;
+using Repository.Interfaces;
+using Services.Interfaces;
 
 namespace Services;
 
-public class DeviceDeviceService : IDeviceService
+public class DeviceService : IDeviceService
 {
     private readonly IDeviceRepository _deviceRepository;
     
 
-    public DeviceDeviceService(IDeviceRepository deviceRepository)
+    public DeviceService(IDeviceRepository deviceRepository)
     {
         _deviceRepository = deviceRepository;
     }
@@ -21,6 +20,8 @@ public class DeviceDeviceService : IDeviceService
     {
         
         var result =  await _deviceRepository.GetDevices();
+        if (result == null) throw new FileNotFoundException("No devices found");
+        
         return result.Select(device => new AllDevicesDto
         {
             Id = device.Id,
@@ -66,7 +67,7 @@ public class DeviceDeviceService : IDeviceService
             Name = deviceDto.DeviceName,
             DeviceTypeId = deviceTypeName.Id,
             IsEnabled = deviceDto.IsEnabled,
-            AdditionalProperties = deviceDto.AdditionalProperties,
+            AdditionalProperties = JsonSerializer.Serialize(deviceDto.AdditionalProperties)
         };
         
         var newDevice = await _deviceRepository.CreateDevice(device);
@@ -74,7 +75,7 @@ public class DeviceDeviceService : IDeviceService
         return new CreateUpdateDeviceDto()
         {
             DeviceName = newDevice.Name,
-            DeviceTypeName = newDevice.DeviceType.Name,
+            DeviceTypeName = newDevice.DeviceType?.Name!,
             IsEnabled = newDevice.IsEnabled,
             AdditionalProperties = newDevice.AdditionalProperties,
         };
@@ -99,17 +100,8 @@ public class DeviceDeviceService : IDeviceService
 
     public async Task DeleteDevice(int id)
     {
-        await _deviceRepository.DeleteDevice(id);
+        var result =  _deviceRepository.DeleteDevice(id);
+        if (result == null) throw new KeyNotFoundException($"Device with id {id} not found");
+        await result;
     }
-    
-
-    private async Task<string> GenerateId()
-    {
-        
-        MasterContext _context = new MasterContext();
-        var lastId = await _context.Devices
-            .MaxAsync(device => (int?)device.Id) ?? 0; 
-        return (lastId + 1).ToString();
-    }
-    
 }

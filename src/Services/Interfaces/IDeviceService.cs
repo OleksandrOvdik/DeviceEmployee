@@ -1,8 +1,5 @@
 ﻿using DTO;
-using Models;
-using Repository;
-
-namespace Services;
+namespace Services.Interfaces;
 
 public interface IDeviceService
 {

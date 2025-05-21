@@ -1,6 +1,6 @@
 ﻿namespace Repository;
 
-public interface IRepository
+public class EmployeeRepository
 {
     
 }

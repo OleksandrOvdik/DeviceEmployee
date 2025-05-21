@@ -11,9 +11,11 @@ public interface IDeviceRepository
     
     Task<Device> CreateDevice(Device device);
     
-    Task UpdateDevice(CreateUpdateDeviceDto device);
+    Task UpdateDevice(Device device);
     
     Task DeleteDevice(int id);
+    
+    Task<DeviceType?> GetDeviceTypeByName(string name);
     
     
 }

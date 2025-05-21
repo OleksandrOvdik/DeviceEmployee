@@ -1,4 +1,5 @@
 ﻿using DTO;
+using Models;
 using Repository;
 using Services.Interfaces;
 
@@ -34,8 +35,31 @@ public class EmployeeService : IEmployeeService
         
     }
 
-    public Task<EmployeeDto> GetEmployeeById(int id)
+    public async Task<EmployeeById> GetEmployeeById(int id)
     {
-        throw new NotImplementedException();
+        
+        var employee = await _employeeRepository.GetEmployeeById(id);
+        return new EmployeeById()
+        {
+            Person = new PersonEmployee()
+            {
+                Id = employee.Person.Id,
+                FirstName = employee.Person.FirstName,
+                MiddleName = employee.Person.MiddleName,
+                LastName = employee.Person.LastName,
+                PhoneNumber = employee.Person.PhoneNumber,
+                Email = employee.Person.Email,
+            },
+            Salary = employee.Salary,
+            Position = new Position()
+            {
+                Id = employee.Position.Id,
+                Name = employee.Position.Name
+            },
+            HireDate = employee.HireDate,
+        };
+
+
+
     }
 }

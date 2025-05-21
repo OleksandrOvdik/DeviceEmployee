@@ -7,7 +7,7 @@ public interface IEmployeeService
 
     public Task<List<EmployeeDto>> GetAllEmployees();
     
-    public Task<EmployeeDto> GetEmployeeById(int id);
+    public Task<EmployeeById> GetEmployeeById(int id);
 
 
 }

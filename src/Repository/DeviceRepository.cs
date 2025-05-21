@@ -49,11 +49,11 @@ public class DeviceRepository : IDeviceRepository
         
     }
 
-    public async Task UpdateDevice(CreateUpdateDeviceDto device)
+    public async Task UpdateDevice(Device device)
     {
         
         _context.Entry(device).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();  
     }
 
     public async Task DeleteDevice(int id)
@@ -67,6 +67,9 @@ public class DeviceRepository : IDeviceRepository
         }
         
     }
-    
-    
+
+    public async Task<DeviceType?> GetDeviceTypeByName(string name)
+    {
+        return await _context.DeviceTypes.FirstOrDefaultAsync(x => x.Name == name);
+    }
 }

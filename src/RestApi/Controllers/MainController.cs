@@ -52,7 +52,7 @@ public class MainController : ControllerBase
     public async Task<ActionResult<CreateUpdateDeviceDto>> CreateDevice(CreateUpdateDeviceDto deviceDto)
     {
         var createdDevice = await _deviceService.CreateDevice(deviceDto);
-        return CreatedAtAction(nameof(GetDevices), new {id = createdDevice.Id}, createdDevice);
+        return createdDevice;
     }
     
     
@@ -85,6 +85,17 @@ public class MainController : ControllerBase
         var employees = await _employeeService.GetAllEmployees();
         return Ok(employees);
     }
+    
+    
+    
+    [HttpGet]
+    [Route("employees/{id}")]
+    public async Task<IActionResult> GetEmployeeById(int id)
+    {
+        var employee = await _employeeService.GetEmployeeById(id);
+        return Ok(employee);
+    }
+    
     
 }
 

@@ -57,41 +57,49 @@ public class DeviceDeviceService : IDeviceService
 
     public async Task<CreateUpdateDeviceDto> CreateDevice(CreateUpdateDeviceDto deviceDto)
     {
+        
+        var deviceTypeName = await _deviceRepository.GetDeviceTypeByName(deviceDto.DeviceTypeName);
+        if (deviceTypeName == null) throw new KeyNotFoundException($"Device type with name {deviceDto.DeviceTypeName} not found");
 
         var device = new Device()
         {
-            
-            Name = deviceDto.DeviceTypeName,
+            Name = deviceDto.DeviceName,
+            DeviceTypeId = deviceTypeName.Id,
             IsEnabled = deviceDto.IsEnabled,
             AdditionalProperties = deviceDto.AdditionalProperties,
-            DeviceTypeId = deviceDto.DeviceTypeId,
-            
         };
         
-        var result = await _deviceRepository.CreateDevice(device);
+        var newDevice = await _deviceRepository.CreateDevice(device);
 
         return new CreateUpdateDeviceDto()
         {
-            Id = result.Id,
-            DeviceTypeName = result.Name,
-            IsEnabled = result.IsEnabled,
-            AdditionalProperties = result.AdditionalProperties,
+            DeviceName = newDevice.Name,
+            DeviceTypeName = newDevice.DeviceType.Name,
+            IsEnabled = newDevice.IsEnabled,
+            AdditionalProperties = newDevice.AdditionalProperties,
         };
 
     }
 
     public async Task UpdateDevice(int id, CreateUpdateDeviceDto deviceDto)
     {
+        var device = await _deviceRepository.GetDevicesById(id);
+        if (device == null) throw new KeyNotFoundException($"Device with id {id} not found");
         
-        return;
+        var deviceTypeName = await _deviceRepository.GetDeviceTypeByName(deviceDto.DeviceTypeName);
+        if (device == null) throw new KeyNotFoundException($"Device with id {id} not found");
         
+        device.Name = deviceDto.DeviceName;
+        device.DeviceType = deviceTypeName;
+        device.IsEnabled = deviceDto.IsEnabled;
+        device.AdditionalProperties = deviceDto.AdditionalProperties;
+        
+        await _deviceRepository.UpdateDevice(device);
     }
 
     public async Task DeleteDevice(int id)
     {
-        
         await _deviceRepository.DeleteDevice(id);
-        
     }
     
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Services;
+using Services.Interfaces;
 
 namespace RestApi.Controllers;
 
@@ -10,12 +11,15 @@ namespace RestApi.Controllers;
 public class MainController : ControllerBase
 {
     private readonly IDeviceService _deviceService;
+    private readonly IEmployeeService _employeeService;
     private readonly ILogger<MainController> _logger;
     
-    public MainController(IDeviceService deviceService, ILogger<MainController> logger)
+    public MainController(IDeviceService deviceService, ILogger<MainController> logger, IEmployeeService employeeService)
     {
         _deviceService = deviceService;
         _logger = logger;
+        _employeeService = employeeService;
+        
     }
     
     
@@ -72,5 +76,15 @@ public class MainController : ControllerBase
         await _deviceService.DeleteDevice(id);
         return NoContent();
     }
+
+
+    [HttpGet]
+    [Route("employees")]
+    public async Task<IActionResult> GetEmployees()
+    {
+        var employees = await _employeeService.GetAllEmployees();
+        return Ok(employees);
+    }
+    
 }
 

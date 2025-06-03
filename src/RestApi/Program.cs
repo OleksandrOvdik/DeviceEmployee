@@ -1,8 +1,12 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Models;
 using Repository;
 using Repository.Interfaces;
 using Services;
+using Services.Helpers.Options;
 using Services.Interfaces;
 
 
@@ -11,6 +15,26 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
 
 builder.Services.AddDbContext<MasterContext>(options => options.UseSqlServer(connectionString));
+
+var jwtConfigData = builder.Configuration.GetSection("Jwt");
+
+builder.Services.Configure<JwtOptions>(jwtConfigData);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidIssuer = jwtConfigData["Issuer"],
+            ValidAudience = jwtConfigData["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfigData["Key"])),
+            ClockSkew = TimeSpan.FromMinutes(10)
+        };
+    });
 
 
 builder.Services.AddControllers();
@@ -36,6 +60,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

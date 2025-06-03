@@ -1,0 +1,116 @@
+using DTO.Accounts;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Models;
+
+namespace RestApi.Controllers; 
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsersController : ControllerBase
+    {
+        
+        private readonly PasswordHasher<Account> _passwordHasher = new (); 
+        private readonly MasterContext _context;
+
+        public UsersController(MasterContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Users
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        {
+            return await _context.Accounts.ToListAsync();
+        }
+
+        // GET: api/Users/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Account>> GetAccount(int id)
+        {
+            var account = await _context.Accounts.FindAsync(id);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return account;
+        }
+
+        // PUT: api/Users/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAccount(int id, Account account)
+        {
+            if (id != account.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // POST: api/Users
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        [Route("/api/accounts")]
+        public async Task<ActionResult<Account>> PostAccount(CreateAccountDto newAccount)
+        {
+            var account = new Account
+            {
+                Username = newAccount.Username,
+                Password = newAccount.Password,
+                // 1 for Admin and 2 for User
+                RoleId = 2
+            };
+            
+            account.Password = _passwordHasher.HashPassword(account, newAccount.Password);
+            
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetAccount", new { id = account.Id }, account);
+        }
+
+        // DELETE: api/Users/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAccount(int id)
+        {
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool AccountExists(int id)
+        {
+            return _context.Accounts.Any(e => e.Id == id);
+        }
+    }

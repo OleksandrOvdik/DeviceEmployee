@@ -1,4 +1,5 @@
-﻿namespace Models;
+﻿
+namespace Models;
 
 public partial class Position
 {

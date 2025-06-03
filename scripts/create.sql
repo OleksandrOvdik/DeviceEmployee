@@ -61,3 +61,23 @@ CREATE TABLE DeviceEmployee (
                                 CONSTRAINT FK_DeviceEmployee_Employee
                                     FOREIGN KEY (EmployeeId) REFERENCES Employee(Id)
 );
+
+CREATE TABLE Role (
+                      Id   INT           NOT NULL IDENTITY(1,1),
+                      Name VARCHAR(100)  NOT NULL UNIQUE,
+                      CONSTRAINT PK_Role PRIMARY KEY (Id)
+);
+
+CREATE TABLE Account (
+                         Id         INT           NOT NULL IDENTITY(1,1),
+                         Username   VARCHAR(100)  NOT NULL UNIQUE,
+                         Password   VARCHAR(200)  NOT NULL,
+                         EmployeeId INT           NOT NULL,
+                         RoleId     INT           NOT NULL,
+                         CONSTRAINT PK_Account PRIMARY KEY (Id),
+                         CONSTRAINT FK_Account_Employee
+                             FOREIGN KEY (EmployeeId) REFERENCES Employee(Id),
+                         CONSTRAINT FK_Account_Role
+                             FOREIGN KEY (RoleId)      REFERENCES Role(Id)
+);
+

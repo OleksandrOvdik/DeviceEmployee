@@ -1,5 +1,5 @@
-﻿namespace Models;
-
+﻿
+namespace Models;
 
 public partial class Device
 {

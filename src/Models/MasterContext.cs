@@ -13,6 +13,8 @@ public partial class MasterContext : DbContext
     {
     }
 
+    public virtual DbSet<Account> Accounts { get; set; }
+
     public virtual DbSet<Device> Devices { get; set; }
 
     public virtual DbSet<DeviceEmployee> DeviceEmployees { get; set; }
@@ -24,13 +26,38 @@ public partial class MasterContext : DbContext
     public virtual DbSet<Person> People { get; set; }
 
     public virtual DbSet<Position> Positions { get; set; }
-    
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //     => optionsBuilder.UseSqlServer("Name=DefaultConnection");
 
+    public virtual DbSet<Role> Roles { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Name=DefaultConnection");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Account>(entity =>
+        {
+            entity.ToTable("Account");
+
+            entity.HasIndex(e => e.Username, "UQ__Account__536C85E47E050459").IsUnique();
+
+            entity.Property(e => e.Password)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.Username)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Account_Employee");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Account_Role");
+        });
+
         modelBuilder.Entity<Device>(entity =>
         {
             entity.ToTable("Device");
@@ -130,6 +157,17 @@ public partial class MasterContext : DbContext
             entity.ToTable("Position");
 
             entity.HasIndex(e => e.Name, "UQ__Position__737584F68FCE0AED").IsUnique();
+
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Role");
+
+            entity.HasIndex(e => e.Name, "UQ__Role__737584F685930E86").IsUnique();
 
             entity.Property(e => e.Name)
                 .HasMaxLength(100)

@@ -8,6 +8,7 @@ using Repository.Interfaces;
 using Services;
 using Services.Helpers.Options;
 using Services.Interfaces;
+using Services.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,9 +45,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddTransient<IAccountRepository, AccountRepository>();
 
 builder.Services.AddTransient<IDeviceService, DeviceService>();
 builder.Services.AddTransient<IEmployeeService, EmployeeService>();
+builder.Services.AddTransient<IAccountService, AccountService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
 
 
 

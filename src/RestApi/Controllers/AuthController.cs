@@ -1,13 +1,12 @@
 using DTO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Services.Tokens;
 
-namespace RestApi
-{
+namespace RestApi.Controllers;
+
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -55,4 +54,3 @@ namespace RestApi
         
         
     }
-}

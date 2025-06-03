@@ -3,20 +3,22 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using Services.Interfaces;
 
 namespace RestApi.Controllers; 
 
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class AccountController : ControllerBase
     {
-        
+        private readonly IAccountService _accountService;
         private readonly PasswordHasher<Account> _passwordHasher = new (); 
         private readonly MasterContext _context;
 
-        public UsersController(MasterContext context)
+        public AccountController(MasterContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
 
         // GET: api/Users
@@ -77,20 +79,23 @@ namespace RestApi.Controllers;
         [Route("/api/accounts")]
         public async Task<ActionResult<Account>> PostAccount(CreateAccountDto newAccount)
         {
-            var account = new Account
+            try
             {
-                Username = newAccount.Username,
-                Password = newAccount.Password,
-                // 1 for Admin and 2 for User
-                RoleId = 2
-            };
+                var result = await _accountService.CreateAccount(newAccount);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
             
-            account.Password = _passwordHasher.HashPassword(account, newAccount.Password);
             
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAccount", new { id = account.Id }, account);
+            
+            
         }
 
         // DELETE: api/Users/5

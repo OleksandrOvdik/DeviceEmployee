@@ -15,6 +15,13 @@ If you wanna launch this application successfully, you need to generate appsetti
   "ConnectionStrings": {
     "DefaultConnection": "PUT HERE YOUR CONNECTION SRING"
   }
+  "Jwt" : {
+    "Issuer" : "your url",
+    "Audience" : "your url",
+    "Key" : "your key",
+    "ValidInMinutes" : 10 
+  }
+
 }
 ```
 JSON REQUEST BODY FOR CREATING AND UPDATING(POST and PUT endpoints)
@@ -25,13 +32,6 @@ JSON REQUEST BODY FOR CREATING AND UPDATING(POST and PUT endpoints)
   "isEnabled": true,
   "additionalProperties": "{"advantage": "trade on futures, stocks, spot, minerals", "disadvantage" : "does not know that he has to earn money, not lose it :)" }"
 }
-
-"Jwt" : {
-    "Issuer" : "your url",
-    "Audience" : "your url",
-    "Key" : "your key",
-    "ValidInMinutes" : 10 
-  }
 
 ```
 

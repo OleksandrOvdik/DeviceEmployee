@@ -13,7 +13,7 @@ If you wanna launch this application successfully, you need to generate appsetti
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;User Id=sa;Password=2f$A_Xs9;Trust Server Certificate=True"
+    "DefaultConnection": "your db connection"
   },
   
   "Jwt" : {

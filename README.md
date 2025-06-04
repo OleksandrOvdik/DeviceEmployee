@@ -13,16 +13,18 @@ If you wanna launch this application successfully, you need to generate appsetti
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "PUT HERE YOUR CONNECTION SRING"
-  }
+    "DefaultConnection": "Server=localhost;User Id=sa;Password=2f$A_Xs9;Trust Server Certificate=True"
+  },
+  
   "Jwt" : {
     "Issuer" : "your url",
     "Audience" : "your url",
     "Key" : "your key",
-    "ValidInMinutes" : 10 
+    "ValidInMinutes" : 10
   }
-
+  
 }
+
 ```
 JSON REQUEST BODY FOR CREATING AND UPDATING(POST and PUT endpoints)
 ```

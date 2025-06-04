@@ -1,4 +1,6 @@
-﻿using DTO;
+﻿using System.Security.Claims;
+using DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 namespace RestApi.Controllers;
@@ -9,18 +11,20 @@ public class MainController : ControllerBase
 {
     private readonly IDeviceService _deviceService;
     private readonly IEmployeeService _employeeService;
+    private readonly IAccountService _accountService;
     private readonly ILogger<MainController> _logger;
     
-    public MainController(IDeviceService deviceService, ILogger<MainController> logger, IEmployeeService employeeService)
+    public MainController(IDeviceService deviceService, ILogger<MainController> logger, IEmployeeService employeeService, IAccountService accountService)
     {
         _deviceService = deviceService;
         _logger = logger;
         _employeeService = employeeService;
-        
+        _accountService = accountService;
     }
     
     [HttpGet]
     [Route("devices")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<AllDevicesDto>>> GetDevices()
     {
         try
@@ -40,6 +44,7 @@ public class MainController : ControllerBase
 
     [HttpGet]
     [Route("devices/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<DeviceDto>> GetDeviceById(int id)
     {
         try
@@ -60,6 +65,7 @@ public class MainController : ControllerBase
     
     [HttpPost]
     [Route("devices")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<CreateUpdateDeviceDto>> CreateDevice(CreateUpdateDeviceDto deviceDto)
     {
         try
@@ -79,6 +85,7 @@ public class MainController : ControllerBase
     
     
     [HttpPut("deivces/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateDevice(int id, CreateUpdateDeviceDto deviceDto)
     {
         try
@@ -97,6 +104,7 @@ public class MainController : ControllerBase
     }
 
     [HttpDelete("devices/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteDevice(int id)
     {
         try
@@ -113,6 +121,7 @@ public class MainController : ControllerBase
 
     [HttpGet]
     [Route("employees")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetEmployees()
     {
         try
@@ -134,12 +143,23 @@ public class MainController : ControllerBase
     
     [HttpGet]
     [Route("employees/{id}")]
-    public async Task<IActionResult> GetEmployeeById(int id)
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetEmployeeById(int id)   
     {
         try
         {
-            var employee = await _employeeService.GetEmployeeById(id);
-            return Ok(employee);
+            var userIdFromTokenString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdFromTokenString))
+                return Unauthorized("Cannot find user ID in token.");
+
+            if (!int.TryParse(userIdFromTokenString, out var userIdFromToken))
+                return Unauthorized("Invalid user ID claim.");
+
+            if (userIdFromToken != id)
+                return Forbid();     
+
+            var employeeDto = await _accountService.ViewAccountUser(id);
+            return Ok(employeeDto);
         }
         catch (KeyNotFoundException e)
         {
@@ -147,7 +167,7 @@ public class MainController : ControllerBase
         }
         catch (Exception e)
         {
-            return NotFound(e.Message);
+            return BadRequest(e.Message);
         }
     }
 }

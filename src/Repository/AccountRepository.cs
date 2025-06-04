@@ -14,6 +14,43 @@ public class AccountRepository : IAccountRepository
         _context = context;
     }
 
+    public async Task<List<Account>> GetAllAccounts()
+    {
+
+        var accountsInfo = _context.Accounts.Select(a => new Account
+        {
+            Id = a.Id,
+            Username = a.Username,
+            Password = a.Password,
+        });
+
+        return await accountsInfo.ToListAsync();
+    }
+
+    public async Task<Account> GetAccountById(int id)
+    {
+        
+        return (await _context.Accounts.FindAsync(id));
+        
+    }
+
+    public async Task<Account> ViewAccountUser(int userId)
+    {
+        
+        return await _context.Accounts
+            .Include(a => a.Role) 
+            .Include(a => a.Employee!)
+            .ThenInclude(e => e.Person)
+            .Where(a => a.EmployeeId == userId)
+            .FirstOrDefaultAsync();
+        
+        // return await _context.Accounts
+            // .Include(emp => emp.Employee.Person)
+            // .ThenInclude(p => new {p.Id, p.PassportNumber, p.FirstName,p.MiddleName, p.LastName, p.PhoneNumber, p.Email,})
+            // .Where(a => a.Password == passportNumber).FirstOrDefaultAsync();
+        
+    }
+
     public async Task<Account> CreateAccount(Account account)
     {
         
@@ -22,14 +59,32 @@ public class AccountRepository : IAccountRepository
         return account;
     }
 
+    public async Task UpdateAccount(Account account)
+    {
+        
+        _context.Entry(account).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        
+    }
+
+    public async Task DeleteAccount(int id)
+    {
+        var account = await _context.Accounts.FindAsync(id);
+        if (account != null)
+        {
+            _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task<Role?> GetRoleByName(string name)
     {
         return await _context.Roles.FirstOrDefaultAsync(r => r.Name == name);
     }
 
-    public async Task<Employee?> GetEmployeeByName(string name)
+    public async Task<Employee?> GetEmployeeByPassportNumber(string number)
     {
         return await _context.Employees.Include(emp => emp.Person)
-            .FirstOrDefaultAsync(emp => emp.Person.FirstName == name);
+            .FirstOrDefaultAsync(emp => emp.Person.PassportNumber == number);
     }
 }

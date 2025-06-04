@@ -27,7 +27,10 @@ namespace RestApi.Controllers;
         [Route("/api/auth")]
         public async Task<IActionResult> Auth(LoginUserDto user, CancellationToken cancellationToken)
         {
-            var foundUser = await _context.Accounts.Include(a => a.Role)
+            var foundUser = await _context.Accounts
+                .Include(a => a.Role)
+                .Include(a => a.Employee)
+                .ThenInclude(emp => emp.Person)
                 .FirstOrDefaultAsync(a => string.Equals(a.Username, user.Username), 
                 cancellationToken);
 
@@ -45,10 +48,10 @@ namespace RestApi.Controllers;
 
             var token = new
             {
-                AccessToken = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name)
+                AccessToken = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name, foundUser.EmployeeId),
             };
             
-            return Ok(token);
+            return Ok(new { AccessToken = token });
 
         }
         

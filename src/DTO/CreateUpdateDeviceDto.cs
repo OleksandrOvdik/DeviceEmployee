@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using System.Text.Json;
+using Models;
 
 namespace DTO;
 
@@ -8,5 +9,5 @@ public class CreateUpdateDeviceDto
 
     public string DeviceTypeName { get; set; } = null!;
     public bool IsEnabled { get; set; }
-    public string AdditionalProperties { get; set; } = null!;
+    public JsonElement AdditionalProperties { get; set; }
 }

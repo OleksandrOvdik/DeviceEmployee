@@ -77,7 +77,7 @@ public class DeviceService : IDeviceService
             DeviceName = newDevice.Name,
             DeviceTypeName = newDevice.DeviceType?.Name!,
             IsEnabled = newDevice.IsEnabled,
-            AdditionalProperties = newDevice.AdditionalProperties,
+            AdditionalProperties = JsonDocument.Parse(newDevice.AdditionalProperties).RootElement,
         };
 
     }
@@ -93,7 +93,7 @@ public class DeviceService : IDeviceService
         device.Name = deviceDto.DeviceName;
         device.DeviceType = deviceTypeName;
         device.IsEnabled = deviceDto.IsEnabled;
-        device.AdditionalProperties = deviceDto.AdditionalProperties;
+        device.AdditionalProperties = JsonSerializer.Serialize(deviceDto.AdditionalProperties);
         
         await _deviceRepository.UpdateDevice(device);
     }

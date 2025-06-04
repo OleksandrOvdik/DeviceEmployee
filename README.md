@@ -25,6 +25,14 @@ JSON REQUEST BODY FOR CREATING AND UPDATING(POST and PUT endpoints)
   "isEnabled": true,
   "additionalProperties": "{"advantage": "trade on futures, stocks, spot, minerals", "disadvantage" : "does not know that he has to earn money, not lose it :)" }"
 }
+
+"Jwt" : {
+    "Issuer" : "your url",
+    "Audience" : "your url",
+    "Key" : "your key",
+    "ValidInMinutes" : 10 
+  }
+
 ```
 
 One man came down from the heavenly mountains, whose name is spoken with a capital letter, a man who became a legend during his lifetime, a man who created an era and became an era himself, a man I honor and respect - he taught me. In fact, I divide all my code into several projects for the following reasons:

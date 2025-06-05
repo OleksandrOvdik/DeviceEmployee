@@ -11,12 +11,14 @@ public interface IAccountService
     
     Task<AccountByIdDto> GetAccountById(int id);
     
-    Task<ViewAccountUserDto> ViewAccountUser(int userId);
+    Task<UpdateViewAccountUserDto> ViewAccountUser(int userId);
     
     
     Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto);
     
     Task UpdateAccount(int id, UpdateAccountAdminDto accountAdminDto);
+    
+    Task UpdateUserAccount(int id, UpdateViewAccountUserDto userAccountDto);
     
     Task DeleteAccount(int id);
     

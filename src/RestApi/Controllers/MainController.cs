@@ -148,12 +148,12 @@ public class MainController : ControllerBase
     {
         try
         {
-            var userIdFromTokenString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdFromTokenString))
-                return Unauthorized("Cannot find user ID in token.");
-
-            if (!int.TryParse(userIdFromTokenString, out var userIdFromToken))
+            var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+            if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+            {
                 return Unauthorized("Invalid user ID claim.");
+            }
 
             if (userIdFromToken != id)
                 return Forbid();     
@@ -169,6 +169,17 @@ public class MainController : ControllerBase
         {
             return BadRequest(e.Message);
         }
+    }
+    
+    [HttpGet("debug/claims")]
+    [Authorize]
+    public IActionResult DebugClaims()
+    {
+        // Будемо повертати список { Type = ..., Value = ... } з кожного Claim
+        var claimsList = User.Claims
+            .Select(c => new { c.Type, c.Value })
+            .ToList();
+        return Ok(claimsList);
     }
 }
 

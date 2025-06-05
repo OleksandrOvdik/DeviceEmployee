@@ -41,7 +41,7 @@ public class AccountRepository : IAccountRepository
             .Include(a => a.Role) 
             .Include(a => a.Employee!)
             .ThenInclude(e => e.Person)
-            .Where(a => a.EmployeeId == userId)
+            .Where(a => a.Id == userId)
             .FirstOrDefaultAsync();
         
         // return await _context.Accounts
@@ -57,6 +57,12 @@ public class AccountRepository : IAccountRepository
         _context.Accounts.Add(account);
         await _context.SaveChangesAsync();
         return account;
+    }
+
+    public async Task UpdateUserAccount(Account account)
+    {
+        _context.Entry(account).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAccount(Account account)

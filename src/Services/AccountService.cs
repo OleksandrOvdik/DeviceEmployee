@@ -46,7 +46,7 @@ public class AccountService : IAccountService
         };
     }
 
-    public async Task<ViewAccountUserDto> ViewAccountUser(int userId)
+    public async Task<UpdateViewAccountUserDto> ViewAccountUser(int userId)
     {
 
         var account = await _accountRepository.ViewAccountUser(userId);
@@ -57,7 +57,7 @@ public class AccountService : IAccountService
         var employee = account.Employee!;
         var person = employee.Person!;
 
-        return new ViewAccountUserDto()
+        return new UpdateViewAccountUserDto()
         {
             AccountId = account.Id,
             Username = account.Username,
@@ -130,6 +130,32 @@ public class AccountService : IAccountService
         account.RoleId = roleName.Id;
         
         await _accountRepository.UpdateAccount(account);
+        
+    }
+
+    public async Task UpdateUserAccount(int id, UpdateViewAccountUserDto userAccountDto)
+    {
+        
+        var account = await _accountRepository.GetAccountById(id);
+        if (account == null) throw new FileNotFoundException("There is no account");
+        
+        account.Username = userAccountDto.Username;
+        account.Password = _passwordHasher.HashPassword(null, userAccountDto.Password);
+        
+        account.EmployeeId = userAccountDto.EmployeeId;
+        account.Employee.Salary = userAccountDto.Salary;
+        account.Employee.PositionId = userAccountDto.PositionId;
+        account.Employee.HireDate = userAccountDto.HireDate;
+        
+        account.Employee.PersonId = userAccountDto.PersonId;
+        account.Employee.Person.PassportNumber = userAccountDto.PassportNumber;
+        account.Employee.Person.FirstName = userAccountDto.FirstName;
+        account.Employee.Person.MiddleName = userAccountDto.MiddleName;
+        account.Employee.Person.LastName = userAccountDto.LastName;
+        account.Employee.Person.Email = userAccountDto.Email;
+        account.Employee.Person.PhoneNumber = userAccountDto.PhoneNumber;
+        
+        await _accountRepository.UpdateUserAccount(account);
         
     }
 

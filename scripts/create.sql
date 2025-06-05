@@ -70,7 +70,7 @@ CREATE TABLE Role (
 
 CREATE TABLE Account (
                          Id         INT           NOT NULL IDENTITY(1,1),
-                         Username   VARCHAR(100)  NOT NULL,
+                         Username   VARCHAR(100)  NOT NULL UNIQUE,
                          Password   VARCHAR(200)  NOT NULL,
                          EmployeeId INT           NOT NULL,
                          RoleId     INT           NOT NULL,

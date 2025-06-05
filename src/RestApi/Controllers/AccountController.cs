@@ -66,23 +66,59 @@ namespace RestApi.Controllers;
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PutAccount(int id, UpdateAccountAdminDto accountAdminDto)
+        [Authorize(Roles = "Admin,User")]
+        public async Task<IActionResult> PutAccount(
+            int id,
+            [FromBody] UpdateAccountRequest dto)
         {
-            try
+            if (User.IsInRole("Admin"))
             {
-                await _accountService.UpdateAccount(id, accountAdminDto);
-                return NoContent();
+                try
+                {
+                    await _accountService.UpdateAccount(id, dto.AdminPart);
+                    return NoContent();
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return NotFound(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (KeyNotFoundException ex)
+
+            if (User.IsInRole("User"))
             {
-                return NotFound(ex.Message);
+                var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+                if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                    !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+                {
+                    return Unauthorized("Invalid user ID claim.");
+                }
+
+                if (userIdFromToken != id)
+                {
+                    return Forbid();
+                }
+
+                try
+                {
+                    await _accountService.UpdateUserAccount(id, dto.UserPart);
+                    return NoContent();
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return NotFound(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Forbid();
         }
+
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -130,4 +166,22 @@ namespace RestApi.Controllers;
         {
             return _context.Accounts.Any(e => e.Id == id);
         }
+        
+        [HttpPost("debug/putAccountRequest")]
+        public IActionResult DebugPutAccountRequest([FromBody] UpdateAccountRequest dto)
+        {
+            if (dto == null)
+                return BadRequest("DTO is null");
+
+            // Подивимося, чи AdminPart та UserPart заповнилися:
+            return Ok(new 
+            {
+                adminPartIsNull = dto.AdminPart == null,
+                userPartIsNull  = dto.UserPart == null,
+                adminPart      = dto.AdminPart,
+                userPart       = dto.UserPart
+            });
+        }
+
+        
     }

@@ -14,6 +14,8 @@ public interface IAccountRepository
     
     Task<Account> CreateAccount(Account account);
     
+    Task UpdateUserAccount(Account account);
+    
     Task UpdateAccount(Account account);
     
     Task DeleteAccount(int id);

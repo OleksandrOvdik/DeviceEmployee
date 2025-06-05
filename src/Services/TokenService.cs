@@ -24,14 +24,14 @@ public class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtOptions.Key);
 
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Sub, username),
             new(ClaimTypes.Role, role),
-            new(ClaimTypes.NameIdentifier, userId.ToString())
+            new("employeeId", userId.ToString())
         };
-
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
@@ -46,5 +46,7 @@ public class TokenService : ITokenService
         var jwt = tokenHandler.WriteToken(token);
         return jwt;
     }
+    
+    
     
 }

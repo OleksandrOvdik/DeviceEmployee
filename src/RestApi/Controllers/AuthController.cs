@@ -48,7 +48,7 @@ namespace RestApi.Controllers;
 
             var token = new
             {
-                AccessToken = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name, foundUser.EmployeeId),
+                AccessToken = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name, foundUser.Id),
             };
             
             return Ok(new { AccessToken = token });

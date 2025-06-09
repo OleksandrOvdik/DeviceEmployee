@@ -75,6 +75,7 @@ namespace RestApi.Controllers;
             {
                 try
                 {
+                    
                     await _accountService.UpdateAccount(id, dto.AdminPart);
                     return NoContent();
                 }
@@ -104,6 +105,7 @@ namespace RestApi.Controllers;
 
                 try
                 {
+                    
                     await _accountService.UpdateUserAccount(id, dto.UserPart);
                     return NoContent();
                 }
@@ -116,6 +118,7 @@ namespace RestApi.Controllers;
                     return BadRequest(ex.Message);
                 }
             }
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto));
             return Forbid();
         }
 

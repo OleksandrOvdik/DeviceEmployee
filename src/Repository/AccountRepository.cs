@@ -30,7 +30,10 @@ public class AccountRepository : IAccountRepository
     public async Task<Account> GetAccountById(int id)
     {
         
-        return (await _context.Accounts.FindAsync(id));
+        return ( _context.Accounts
+            .Include(acc => acc.Employee)
+            .ThenInclude(emp => emp.Person)
+            .FirstOrDefault(acc => acc.Id == id));
         
     }
 

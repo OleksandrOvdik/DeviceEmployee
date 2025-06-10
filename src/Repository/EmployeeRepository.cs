@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DTO;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository.Interfaces;
 
@@ -32,5 +33,25 @@ public class EmployeeRepository : IEmployeeRepository
             Include(ps => ps.Position).
             FirstOrDefaultAsync(e => e.Id == id))!;
         
+    }
+
+    public async Task<List<Position>> GetAllPositions()
+    {
+        var positions = _context.Positions.Select(p => new Position
+        {
+            Id = p.Id,
+            Name = p.Name,
+        });
+        return await positions.ToListAsync();
+    }
+
+    public async Task<List<Role>> GetAllRoles()
+    {
+        var roles = _context.Roles.Select(r => new Role
+        {
+            Id = r.Id,
+            Name = r.Name,
+        });
+        return await roles.ToListAsync();
     }
 }

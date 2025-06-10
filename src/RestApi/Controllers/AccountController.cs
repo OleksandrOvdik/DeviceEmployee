@@ -8,7 +8,7 @@ using Services.Interfaces;
 
 namespace RestApi.Controllers; 
 
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -176,7 +176,6 @@ namespace RestApi.Controllers;
             if (dto == null)
                 return BadRequest("DTO is null");
 
-            // Подивимося, чи AdminPart та UserPart заповнилися:
             return Ok(new 
             {
                 adminPartIsNull = dto.AdminPart == null,

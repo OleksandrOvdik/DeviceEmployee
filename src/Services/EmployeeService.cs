@@ -29,7 +29,7 @@ public class EmployeeService : IEmployeeService
             obj.Add(new EmployeeDto()
             {
                 Id = employee.Id,
-                Name = $"{employee.Person.FirstName} {employee.Person.MiddleName} {employee.Person.LastName}"
+                Fullname = $"{employee.Person.FirstName} {employee.Person.MiddleName} {employee.Person.LastName}"
             });
         }
         
@@ -60,5 +60,29 @@ public class EmployeeService : IEmployeeService
             },
             HireDate = employee.HireDate,
         };
+    }
+
+    public async Task<List<Position>> GetAllPositions()
+    {
+        var result = await _employeeRepository.GetAllPositions();
+        if (result == null) throw new KeyNotFoundException("No positions found");
+
+        return result.Select(r => new Position()
+        {
+            Id = r.Id,
+            Name = r.Name,
+        }).ToList();
+
+    }
+
+    public async Task<List<Role>> GetAllRoles()
+    {
+        var result = await _employeeRepository.GetAllRoles();
+        if (result == null) throw new KeyNotFoundException("No roles found");
+        return result.Select(r => new Role()
+        {
+            Id = r.Id,
+            Name = r.Name,
+        }).ToList();
     }
 }

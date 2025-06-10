@@ -6,12 +6,16 @@ public interface IDeviceService
     
     Task<List<AllDevicesDto>> GetDevices();
     
-    Task<DeviceDto> GetDevicesById(int id);
+    Task<GetSpecificDeviceDto> GetDevicesById(int id);
     
-    Task<CreateUpdateDeviceDto> CreateDevice(CreateUpdateDeviceDto deviceDto);
+    Task<PostPutSpecificDeviceDto> CreateDevice(PostPutSpecificDeviceDto specificDeviceDto);
     
-    Task UpdateDevice(int id, CreateUpdateDeviceDto deviceDto);
+    Task UpdateDevice(int id, PostPutSpecificDeviceDto specificDeviceDto);
     
     Task DeleteDevice(int id);
+    
+    Task<bool> IsDeviceOwnedByUser(int deviceId, int employeeId);
+    
+    
     
 }

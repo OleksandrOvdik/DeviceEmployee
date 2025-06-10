@@ -16,5 +16,11 @@ public interface IDeviceRepository
     
     Task<DeviceType?> GetDeviceTypeByName(string name);
     
+    Task<List<DeviceType>> GetDeviceTypes();
+    
+    Task<bool> IsDeviceOwnedByUser(int deviceId, int employeeId);
+    
+    
+    
     
 }

@@ -39,19 +39,12 @@ public class AccountRepository : IAccountRepository
 
     public async Task<Account> ViewAccountUser(int userId)
     {
-        
         return await _context.Accounts
-            .Include(a => a.Role) 
-            .Include(a => a.Employee!)
+            .Include(a => a.Role)
+            .Include(a => a.Employee)
             .ThenInclude(e => e.Person)
             .Where(a => a.Id == userId)
             .FirstOrDefaultAsync();
-        
-        // return await _context.Accounts
-            // .Include(emp => emp.Employee.Person)
-            // .ThenInclude(p => new {p.Id, p.PassportNumber, p.FirstName,p.MiddleName, p.LastName, p.PhoneNumber, p.Email,})
-            // .Where(a => a.Password == passportNumber).FirstOrDefaultAsync();
-        
     }
 
     public async Task<Account> CreateAccount(Account account)

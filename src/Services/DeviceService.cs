@@ -29,7 +29,7 @@ public class DeviceService : IDeviceService
         }).ToList();
     }
 
-    public async Task<DeviceDto> GetDevicesById(int id)
+    public async Task<GetSpecificDeviceDto> GetDevicesById(int id)
     {
     
         var device = await _deviceRepository.GetDevicesById(id);
@@ -38,62 +38,56 @@ public class DeviceService : IDeviceService
 
         var currentEmployee = device.DeviceEmployees.FirstOrDefault(emp => emp.ReturnDate == null);
 
-        return new DeviceDto()
+        return new GetSpecificDeviceDto()
         {
             DeviceTypeName = device.DeviceType?.Name ?? "Хуй зна",
             IsEnabled = device.IsEnabled,
             AdditionalProperties = JsonDocument.Parse(device.AdditionalProperties).RootElement,
-            CurrentEmployee = currentEmployee is null
-                ? null
-                : new EmployeeDto()
-                {
-                    Id = currentEmployee.EmployeeId,
-                    Name =
-                        $"{currentEmployee.Employee.Person.FirstName} {currentEmployee.Employee.Person.MiddleName} {currentEmployee.Employee.Person.LastName}"
-                }
+            DeviceName = device.Name
+            // CurrentEmployee = currentEmployee is null
+            //     ? null
+            //     : new EmployeeDto()
+            //     {
+            //         Id = currentEmployee.EmployeeId,
+            //         Name =
+            //             $"{currentEmployee.Employee.Person.FirstName} {currentEmployee.Employee.Person.MiddleName} {currentEmployee.Employee.Person.LastName}"
+            //     }
 
         };
 
     }
 
-    public async Task<CreateUpdateDeviceDto> CreateDevice(CreateUpdateDeviceDto deviceDto)
+    public async Task<PostPutSpecificDeviceDto> CreateDevice(PostPutSpecificDeviceDto specificDeviceDto)
     {
-        
-        var deviceTypeName = await _deviceRepository.GetDeviceTypeByName(deviceDto.DeviceTypeName);
-        if (deviceTypeName == null) throw new KeyNotFoundException($"Device type with name {deviceDto.DeviceTypeName} not found");
-
         var device = new Device()
         {
-            Name = deviceDto.DeviceName,
-            DeviceTypeId = deviceTypeName.Id,
-            IsEnabled = deviceDto.IsEnabled,
-            AdditionalProperties = JsonSerializer.Serialize(deviceDto.AdditionalProperties)
+            Name = specificDeviceDto.DeviceName,
+            DeviceTypeId = specificDeviceDto.DeviceTypeId,   
+            IsEnabled = specificDeviceDto.IsEnabled,
+            AdditionalProperties = JsonSerializer.Serialize(specificDeviceDto.AdditionalProperties)
         };
         
         var newDevice = await _deviceRepository.CreateDevice(device);
 
-        return new CreateUpdateDeviceDto()
+        return new PostPutSpecificDeviceDto()
         {
             DeviceName = newDevice.Name,
-            DeviceTypeName = newDevice.DeviceType?.Name!,
+            DeviceTypeId = newDevice.Id,
             IsEnabled = newDevice.IsEnabled,
             AdditionalProperties = JsonDocument.Parse(newDevice.AdditionalProperties).RootElement,
         };
 
     }
 
-    public async Task UpdateDevice(int id, CreateUpdateDeviceDto deviceDto)
+    public async Task UpdateDevice(int id, PostPutSpecificDeviceDto specificDeviceDto)
     {
         var device = await _deviceRepository.GetDevicesById(id);
         if (device == null) throw new KeyNotFoundException($"Device with id {id} not found");
         
-        var deviceTypeName = await _deviceRepository.GetDeviceTypeByName(deviceDto.DeviceTypeName);
-        if (device == null) throw new KeyNotFoundException($"Device with id {id} not found");
-        
-        device.Name = deviceDto.DeviceName;
-        device.DeviceType = deviceTypeName;
-        device.IsEnabled = deviceDto.IsEnabled;
-        device.AdditionalProperties = JsonSerializer.Serialize(deviceDto.AdditionalProperties);
+        device.Name = specificDeviceDto.DeviceName;
+        device.DeviceTypeId = specificDeviceDto.DeviceTypeId;
+        device.IsEnabled = specificDeviceDto.IsEnabled;
+        device.AdditionalProperties = JsonSerializer.Serialize(specificDeviceDto.AdditionalProperties);
         
         await _deviceRepository.UpdateDevice(device);
     }
@@ -103,5 +97,10 @@ public class DeviceService : IDeviceService
         var result =  _deviceRepository.DeleteDevice(id);
         if (result == null) throw new KeyNotFoundException($"Device with id {id} not found");
         await result;
+    }
+
+    public async Task<bool> IsDeviceOwnedByUser(int deviceId, int employeeId)
+    {
+        return await _deviceRepository.IsDeviceOwnedByUser(deviceId, employeeId);
     }
 }

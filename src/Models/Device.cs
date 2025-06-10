@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json;
+
 namespace Models;
 
 public partial class Device

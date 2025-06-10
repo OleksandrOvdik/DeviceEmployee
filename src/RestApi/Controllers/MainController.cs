@@ -44,33 +44,69 @@ public class MainController : ControllerBase
 
     [HttpGet]
     [Route("devices/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,User")]
     public async Task<ActionResult<DeviceDto>> GetDeviceById(int id)
     {
-        try
+
+        if (User.IsInRole("Admin"))
         {
-            var result = await _deviceService.GetDevicesById(id);
-            return Ok(result);
+            try
+            {
+                var result = await _deviceService.GetDevicesById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
-        catch (KeyNotFoundException e)
+
+        if (User.IsInRole("User"))
         {
-            return NotFound(e.Message);
+            var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+            if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+            {
+                return Unauthorized("Invalid user ID claim.");
+            }
+
+            bool isDeviceOwnedByUser = await _deviceService.IsDeviceOwnedByUser(id, userIdFromToken);
+
+            if (!isDeviceOwnedByUser)
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var result = await _deviceService.GetDevicesById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        return Forbid();
     }
     
     
     [HttpPost]
     [Route("devices")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<CreateUpdateDeviceDto>> CreateDevice(CreateUpdateDeviceDto deviceDto)
+    public async Task<ActionResult<PostPutSpecificDeviceDto>> CreateDevice(PostPutSpecificDeviceDto specificDeviceDto)
     {
         try
         {
-            var result = await _deviceService.CreateDevice(deviceDto);
+            var result = await _deviceService.CreateDevice(specificDeviceDto);
             return Ok(result);
         }
         catch (KeyNotFoundException e)
@@ -85,22 +121,57 @@ public class MainController : ControllerBase
     
     
     [HttpPut("deivces/{id}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateDevice(int id, CreateUpdateDeviceDto deviceDto)
+    [Authorize(Roles = "Admin,User")]
+    public async Task<IActionResult> UpdateDevice(int id, PostPutSpecificDeviceDto specificDeviceDto)
     {
-        try
+        if (User.IsInRole("Admin"))
         {
-            await _deviceService.UpdateDevice(id, deviceDto);
-            return NoContent();
+            try
+            {
+                await _deviceService.UpdateDevice(id, specificDeviceDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
-        catch (KeyNotFoundException)
+
+        if (User.IsInRole("User"))
         {
-            return NotFound();
+            var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+            if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+            {
+                return Unauthorized("Invalid user ID claim.");
+            }
+
+            bool isDeviceOwnedByUser = await _deviceService.IsDeviceOwnedByUser(id, userIdFromToken);
+
+            if (!isDeviceOwnedByUser)
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                await _deviceService.UpdateDevice(id, specificDeviceDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        return Forbid();
     }
 
     [HttpDelete("devices/{id}")]
@@ -175,11 +246,49 @@ public class MainController : ControllerBase
     [Authorize]
     public IActionResult DebugClaims()
     {
-        // Будемо повертати список { Type = ..., Value = ... } з кожного Claim
         var claimsList = User.Claims
             .Select(c => new { c.Type, c.Value })
             .ToList();
         return Ok(claimsList);
     }
+
+    [HttpGet("positions")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetPositions()
+    {
+        try
+        {
+            var result = _employeeService.GetAllPositions();
+            return Ok(result);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
+    [HttpGet("roles")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetRoles()
+    {
+        try
+        {
+            var result = _employeeService.GetAllPositions();
+            return Ok(result);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
 }
 

@@ -18,7 +18,7 @@ public class CreateAccountDto
     [RegularExpression("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{12,}$")]
     public string Password { get; set; }
     
-    public string EmployeePassportNumber { get; set; }
-    public string RoleName { get; set; }
+    public int EmployeeId { get; set; }
+    public int RoleNameId { get; set; }
     
 }

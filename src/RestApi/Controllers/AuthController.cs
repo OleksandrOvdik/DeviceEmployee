@@ -46,12 +46,8 @@ namespace RestApi.Controllers;
                 return Unauthorized();
             }
 
-            var token = new
-            {
-                AccessToken = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name, foundUser.Id),
-            };
-            
-            return Ok(new { AccessToken = token });
+            var token = _tokenService.GenerateToken(foundUser.Username, foundUser.Role.Name, foundUser.EmployeeId);
+            return Ok(new { accessToken = token });
 
         }
         

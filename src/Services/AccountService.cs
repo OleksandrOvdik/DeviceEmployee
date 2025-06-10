@@ -56,7 +56,7 @@ public class AccountService : IAccountService
         
         var employee = account.Employee!;
         var person = employee.Person!;
-
+        
         return new UpdateViewAccountUserDto()
         {
             AccountId = account.Id,
@@ -84,19 +84,19 @@ public class AccountService : IAccountService
     public async Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto)
     {
         
-        var roleName = await _accountRepository.GetRoleByName(accountDto.RoleName); 
-        if (roleName == null) throw new KeyNotFoundException($"Role with name {accountDto.RoleName} not found");
+        // var roleName = await _accountRepository.GetRoleByName(accountDto.RoleName); 
+        // if (roleName == null) throw new KeyNotFoundException($"Role with name {accountDto.RoleName} not found");
         
-        var employeePassportNumber = await _accountRepository.GetEmployeeByPassportNumber(accountDto.EmployeePassportNumber);
-        if (employeePassportNumber == null) throw new KeyNotFoundException($"Employee with name {accountDto.EmployeePassportNumber} not found");
+        // var employeePassportNumber = await _accountRepository.GetEmployeeByPassportNumber(accountDto.EmployeePassportNumber);
+        // if (employeePassportNumber == null) throw new KeyNotFoundException($"Employee with name {accountDto.EmployeePassportNumber} not found");
 
         var account = new Account()
         {
             Username = accountDto.Username,
             // Password = accountDto.Password,
             Password   = _passwordHasher.HashPassword(null, accountDto.Password),
-            EmployeeId = employeePassportNumber.Id,
-            RoleId = roleName.Id,
+            EmployeeId = accountDto.EmployeeId,
+            RoleId = accountDto.RoleNameId
         };
 
 
@@ -107,8 +107,8 @@ public class AccountService : IAccountService
         {
             Username = accountDto.Username,
             // Password = accountDto.Password,
-            EmployeePassportNumber = newAccount.Employee.Person.PassportNumber,
-            RoleName = newAccount.Role.Name,
+            // EmployeePassportNumber = newAccount.Employee.Person.PassportNumber,
+            RoleNameId = newAccount.RoleId,
         };
 
     }

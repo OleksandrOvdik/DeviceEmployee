@@ -36,8 +36,6 @@ public class DeviceRepository : IDeviceRepository
             .ThenInclude(emp => emp.Employee)
             .ThenInclude(p => p.Person)
             .FirstOrDefaultAsync(e => e.Id == deviceId))!;
-
-        
     }
 
     public async Task<Device> CreateDevice(Device device)
@@ -71,4 +69,22 @@ public class DeviceRepository : IDeviceRepository
     {
         return await _context.DeviceTypes.FirstOrDefaultAsync(x => x.Name == name);
     }
+
+    public async Task<List<DeviceType>> GetDeviceTypes()
+    {
+        
+        var types =  _context.DeviceTypes.Select(x => new DeviceType
+        {
+            Name = x.Name,
+        });
+
+        return await types.ToListAsync();
+
+    }
+    public async Task<bool> IsDeviceOwnedByUser(int deviceId, int employeeId)
+    {
+        return await _context.DeviceEmployees
+            .AnyAsync(de => de.DeviceId == deviceId && de.EmployeeId == employeeId);
+    }
+    
 }

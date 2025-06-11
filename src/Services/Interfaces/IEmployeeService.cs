@@ -10,8 +10,10 @@ public interface IEmployeeService
     
     public Task<EmployeeByIdDto> GetEmployeeById(int id);
     
-    Task<List<Position>> GetAllPositions();
-    Task<List<Role>> GetAllRoles();
+    Task<PostPutSpecificEmployee> CreateEmployee(PostPutSpecificEmployee employeeDto);
+    
+    Task<List<GetAllPositionsDto>> GetAllPositions();
+    Task<List<GetAllRolesDto>> GetAllRoles();
 
 
 }

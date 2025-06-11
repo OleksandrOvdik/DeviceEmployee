@@ -1,6 +1,6 @@
 ﻿namespace DTO;
 
-public class GetAllPositions
+public class GetAllPositionsDto
 {
     public int Id { get; set; }
 

@@ -8,6 +8,8 @@ public interface IDeviceService
     
     Task<GetSpecificDeviceDto> GetDevicesById(int id);
     
+    Task<List<GetAllDeviceTypesDto>> GetAllDeviceTypes();
+    
     Task<PostPutSpecificDeviceDto> CreateDevice(PostPutSpecificDeviceDto specificDeviceDto);
     
     Task UpdateDevice(int id, PostPutSpecificDeviceDto specificDeviceDto);

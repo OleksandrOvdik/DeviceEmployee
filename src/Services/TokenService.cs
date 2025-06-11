@@ -18,7 +18,7 @@ public class TokenService : ITokenService
         _jwtOptions = jwtOptions.Value;
     }
 
-    public string GenerateToken(string username, string role, int userId)
+    public string GenerateToken(string username, string role, int userId, int accountId)
     {
         
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -30,7 +30,8 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Sub, username),
             new(ClaimTypes.Role, role),
-            new("employeeId", userId.ToString())
+            new("employeeId", userId.ToString()),
+            new("accountId", accountId.ToString()),
         };
         var tokenDescriptor = new SecurityTokenDescriptor
         {

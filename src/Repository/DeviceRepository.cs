@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DTO;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository.Interfaces;
 
@@ -70,11 +71,12 @@ public class DeviceRepository : IDeviceRepository
         return await _context.DeviceTypes.FirstOrDefaultAsync(x => x.Name == name);
     }
 
-    public async Task<List<DeviceType>> GetDeviceTypes()
+    public async Task<List<GetAllDeviceTypesDto>> GetDeviceTypes()
     {
         
-        var types =  _context.DeviceTypes.Select(x => new DeviceType
+        var types =  _context.DeviceTypes.Select(x => new GetAllDeviceTypesDto()
         {
+            Id = x.Id,
             Name = x.Name,
         });
 

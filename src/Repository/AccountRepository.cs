@@ -21,7 +21,6 @@ public class AccountRepository : IAccountRepository
         {
             Id = a.Id,
             Username = a.Username,
-            Password = a.Password,
         });
 
         return await accountsInfo.ToListAsync();
@@ -30,10 +29,11 @@ public class AccountRepository : IAccountRepository
     public async Task<Account> GetAccountById(int id)
     {
         
-        return ( _context.Accounts
-            .Include(acc => acc.Employee)
-            .ThenInclude(emp => emp.Person)
-            .FirstOrDefault(acc => acc.Id == id));
+        return await _context.Accounts
+            .Include(a => a.Employee)
+            .ThenInclude(e => e.Person)
+            .Include(a => a.Role)
+            .FirstOrDefaultAsync(a => a.Id == id);
         
     }
 

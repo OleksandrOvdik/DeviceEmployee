@@ -29,28 +29,27 @@ public class AccountService : IAccountService
         {
             Id = account.Id,
             Username = account.Username,
-            Password = account.Password,
         }).ToList();
 
     }
 
-    public async Task<AccountByIdDto> GetAccountById(int id)
+    public async Task<GetSpecificAccountDto> GetAccountById(int id)
     {
         var account = await _accountRepository.GetAccountById(id);
         if (account == null) throw new FileNotFoundException("There are no accounts");
 
-        return new AccountByIdDto()
+        return new GetSpecificAccountDto()
         {
-            Password = account.Password,
             Username = account.Username,
+            Role = account.Role.Name,
         };
     }
 
     public async Task<UpdateViewAccountUserDto> ViewAccountUser(int userId)
     {
-
+    
         var account = await _accountRepository.ViewAccountUser(userId);
-
+    
         if (account == null) throw new KeyNotFoundException($"There are no accounts with id {userId}");
         
         
@@ -63,12 +62,12 @@ public class AccountService : IAccountService
             Username = account.Username,
             Password = account.Password,
             RoleName = account.Role.Name,
-
+    
             EmployeeId = employee.Id,
             Salary = employee.Salary,
             PositionId = employee.PositionId,
             HireDate = employee.HireDate,
-
+    
             PersonId = person.Id,
             PassportNumber = person.PassportNumber,
             FirstName = person.FirstName,
@@ -77,26 +76,19 @@ public class AccountService : IAccountService
             Email = person.Email,
             PhoneNumber = person.PhoneNumber,
         };
-
-
+    
+    
     }
 
     public async Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto)
     {
-        
-        // var roleName = await _accountRepository.GetRoleByName(accountDto.RoleName); 
-        // if (roleName == null) throw new KeyNotFoundException($"Role with name {accountDto.RoleName} not found");
-        
-        // var employeePassportNumber = await _accountRepository.GetEmployeeByPassportNumber(accountDto.EmployeePassportNumber);
-        // if (employeePassportNumber == null) throw new KeyNotFoundException($"Employee with name {accountDto.EmployeePassportNumber} not found");
 
         var account = new Account()
         {
             Username = accountDto.Username,
-            // Password = accountDto.Password,
             Password   = _passwordHasher.HashPassword(null, accountDto.Password),
             EmployeeId = accountDto.EmployeeId,
-            RoleId = accountDto.RoleNameId
+            RoleId = accountDto.RoleId
         };
 
 
@@ -105,10 +97,10 @@ public class AccountService : IAccountService
 
         return new CreateAccountDto()
         {
-            Username = accountDto.Username,
-            // Password = accountDto.Password,
-            // EmployeePassportNumber = newAccount.Employee.Person.PassportNumber,
-            RoleNameId = newAccount.RoleId,
+            Username = newAccount.Username,
+            Password = newAccount.Password,
+            EmployeeId = newAccount.EmployeeId,
+            RoleId = newAccount.RoleId,
         };
 
     }

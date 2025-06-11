@@ -4,8 +4,8 @@ namespace DTO;
 
 public class PostPutSpecificDeviceDto
 {
-    public string DeviceName { get; set; } = null!;
-    public int DeviceTypeId { get; set; }
+    public string Name { get; set; } = null!;
+    public int TypeId { get; set; }
     public bool IsEnabled { get; set; }
     public JsonElement AdditionalProperties { get; set; }
 }

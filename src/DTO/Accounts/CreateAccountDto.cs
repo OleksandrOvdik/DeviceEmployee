@@ -5,9 +5,6 @@ namespace DTO.Accounts;
 public class CreateAccountDto
 {
     
-    // Username shouldn’t start with numbers.
-    // Password should have length at least 12, and have at least one small letter, one capital letter, one number and one symbol.
-    
     [Required]
     [MaxLength(60)]
     [RegularExpression("^[A-Za-z][A-Za-z0-9]{3,}$")]
@@ -19,6 +16,6 @@ public class CreateAccountDto
     public string Password { get; set; }
     
     public int EmployeeId { get; set; }
-    public int RoleNameId { get; set; }
+    public int RoleId { get; set; }
     
 }

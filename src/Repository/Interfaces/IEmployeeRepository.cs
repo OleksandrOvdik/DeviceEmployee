@@ -9,6 +9,10 @@ public interface IEmployeeRepository
     
     public Task<Employee> GetEmployeeById(int id);
     
-    Task<List<Position>> GetAllPositions();
-    Task<List<Role>> GetAllRoles();
+    Task<Employee> CreateEmployee(Employee employee);
+    
+    Task<List<GetAllPositionsDto>> GetAllPositions();
+    Task<List<GetAllRolesDto>> GetAllRoles();
+    
+    Task<Position> GetPositionById(int id);
 }

@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using DTO;
+using Models;
 
 namespace Repository.Interfaces;
 
@@ -16,7 +17,7 @@ public interface IDeviceRepository
     
     Task<DeviceType?> GetDeviceTypeByName(string name);
     
-    Task<List<DeviceType>> GetDeviceTypes();
+    Task<List<GetAllDeviceTypesDto>> GetDeviceTypes();
     
     Task<bool> IsDeviceOwnedByUser(int deviceId, int employeeId);
     

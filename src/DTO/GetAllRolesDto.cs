@@ -1,6 +1,6 @@
 ﻿namespace DTO;
 
-public class GetAllRoles
+public class GetAllRolesDto
 {
     public int Id { get; set; }
 

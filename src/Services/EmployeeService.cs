@@ -39,13 +39,16 @@ public class EmployeeService : IEmployeeService
 
     public async Task<EmployeeByIdDto> GetEmployeeById(int id)
     {
+        // var PositionName = await _employeeRepository.GetPositionById(id);
+        // if (PositionName == null) throw new KeyNotFoundException("No position found");
+        
         var employee = await _employeeRepository.GetEmployeeById(id);
         if (employee == null) throw new KeyNotFoundException($"Employee with id {id} not found");
         return new EmployeeByIdDto()
         {
             Person = new PersonEmployeeDto()
             {
-                Id = employee.Person.Id,
+                PassportNumber = employee.Person.PassportNumber,
                 FirstName = employee.Person.FirstName,
                 MiddleName = employee.Person.MiddleName,
                 LastName = employee.Person.LastName,
@@ -53,21 +56,44 @@ public class EmployeeService : IEmployeeService
                 Email = employee.Person.Email,
             },
             Salary = employee.Salary,
-            Position = new Position()
-            {
-                Id = employee.Position.Id,
-                Name = employee.Position.Name
-            },
+            Position = employee.Position.Name,
             HireDate = employee.HireDate,
         };
     }
 
-    public async Task<List<Position>> GetAllPositions()
+    public async Task<PostPutSpecificEmployee> CreateEmployee(PostPutSpecificEmployee employeeDto)
+    {
+
+        var employee = new Employee()
+        {
+            Salary = employeeDto.Salary,
+            PositionId = employeeDto.PositionId,
+            Person = new Person()
+            {
+                PassportNumber = employeeDto.Person.PassportNumber,
+                FirstName = employeeDto.Person.FirstName,
+                MiddleName = employeeDto.Person.MiddleName!,
+                LastName = employeeDto.Person.LastName,
+                PhoneNumber = employeeDto.Person.PhoneNumber,
+                Email = employeeDto.Person.Email,
+            }
+        };
+        
+        var newEmployee = await _employeeRepository.CreateEmployee(employee);
+
+        return new PostPutSpecificEmployee()
+        {
+            PositionId = newEmployee.PositionId,
+        };
+
+    }
+
+    public async Task<List<GetAllPositionsDto>> GetAllPositions()
     {
         var result = await _employeeRepository.GetAllPositions();
         if (result == null) throw new KeyNotFoundException("No positions found");
 
-        return result.Select(r => new Position()
+        return result.Select(r => new GetAllPositionsDto()
         {
             Id = r.Id,
             Name = r.Name,
@@ -75,11 +101,11 @@ public class EmployeeService : IEmployeeService
 
     }
 
-    public async Task<List<Role>> GetAllRoles()
+    public async Task<List<GetAllRolesDto>> GetAllRoles()
     {
         var result = await _employeeRepository.GetAllRoles();
         if (result == null) throw new KeyNotFoundException("No roles found");
-        return result.Select(r => new Role()
+        return result.Select(r => new GetAllRolesDto()
         {
             Id = r.Id,
             Name = r.Name,

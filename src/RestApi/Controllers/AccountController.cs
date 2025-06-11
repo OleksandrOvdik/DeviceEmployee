@@ -44,22 +44,57 @@ namespace RestApi.Controllers;
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<Account>> GetAccount(int id)
         {
-            try
+            if (User.IsInRole("Admin"))
             {
-                var account = await _accountService.GetAccountById(id);
-                return Ok(account);
+                try
+                {
+                    
+                    var result = await _accountService.GetAccountById(id);
+                    return Ok(result);
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return NotFound(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (KeyNotFoundException ex)
+
+            if (User.IsInRole("User"))
             {
-                return NotFound(ex.Message);
+                var userIdFromTokenString = User.FindFirst("accountId")?.Value;
+                if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                    !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+                {
+                    return Unauthorized("Invalid user ID claim.");
+                }
+
+                if (userIdFromToken != id)
+                {
+                    return Forbid();
+                }
+
+                try
+                {
+                    
+                    var result = await _accountService.GetAccountById(id);
+                    return Ok(result);
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return NotFound(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Forbid();
         }
         
 
@@ -141,7 +176,14 @@ namespace RestApi.Controllers;
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                var message = e.Message;
+                var inner = e.InnerException;
+                while (inner != null)
+                {
+                    message += " | " + inner.Message;
+                    inner = inner.InnerException;
+                }
+                return BadRequest(message);
             }
             
             

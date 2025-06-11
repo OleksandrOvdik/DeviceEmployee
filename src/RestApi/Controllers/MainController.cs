@@ -2,6 +2,7 @@
 using DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using Services.Interfaces;
 namespace RestApi.Controllers;
 
@@ -106,8 +107,8 @@ public class MainController : ControllerBase
     {
         try
         {
-            var result = await _deviceService.CreateDevice(specificDeviceDto);
-            return Ok(result);
+            await _deviceService.CreateDevice(specificDeviceDto);
+            return NoContent();
         }
         catch (KeyNotFoundException e)
         {
@@ -120,7 +121,7 @@ public class MainController : ControllerBase
     }
     
     
-    [HttpPut("deivces/{id}")]
+    [HttpPut("devices/{id}")]
     [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> UpdateDevice(int id, PostPutSpecificDeviceDto specificDeviceDto)
     {
@@ -214,23 +215,66 @@ public class MainController : ControllerBase
     
     [HttpGet]
     [Route("employees/{id}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> GetEmployeeById(int id)   
+    {
+
+        if (User.IsInRole("Admin"))
+        {
+
+            try
+            {
+                var result = await _employeeService.GetEmployeeById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
+        }
+
+        if (User.IsInRole("User"))
+        {
+            try
+            {
+                var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+                if (string.IsNullOrEmpty(userIdFromTokenString) || 
+                    !int.TryParse(userIdFromTokenString, out var userIdFromToken))
+                {
+                    return Unauthorized("Invalid user ID claim.");
+                }
+
+                if (userIdFromToken != id)
+                    return Forbid();     
+
+                var employeeDto = await _employeeService.GetEmployeeById(id);
+                return Ok(employeeDto);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+       return Forbid();
+    }
+
+    [HttpPost("employees")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Employee>> PostEmployee(PostPutSpecificEmployee newEmployee)
     {
         try
         {
-            var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
-            if (string.IsNullOrEmpty(userIdFromTokenString) || 
-                !int.TryParse(userIdFromTokenString, out var userIdFromToken))
-            {
-                return Unauthorized("Invalid user ID claim.");
-            }
-
-            if (userIdFromToken != id)
-                return Forbid();     
-
-            var employeeDto = await _accountService.ViewAccountUser(id);
-            return Ok(employeeDto);
+            var result = await _employeeService.CreateEmployee(newEmployee);
+            return Ok(result);
         }
         catch (KeyNotFoundException e)
         {
@@ -238,9 +282,17 @@ public class MainController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(e.Message);
+            var message = e.Message;
+            var inner = e.InnerException;
+            while (inner != null)
+            {
+                message += " | " + inner.Message;
+                inner = inner.InnerException;
+            }
+            return BadRequest(message);
         }
     }
+    
     
     [HttpGet("debug/claims")]
     [Authorize]
@@ -258,7 +310,7 @@ public class MainController : ControllerBase
     {
         try
         {
-            var result = _employeeService.GetAllPositions();
+            var result = await _employeeService.GetAllPositions();
             return Ok(result);
         }
         catch (KeyNotFoundException e)
@@ -277,7 +329,26 @@ public class MainController : ControllerBase
     {
         try
         {
-            var result = _employeeService.GetAllPositions();
+            var result = await _employeeService.GetAllRoles();
+            return Ok(result);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("devices/types")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetDeviceTypes()
+    {
+        try
+        {
+            var result = await _deviceService.GetAllDeviceTypes();
             return Ok(result);
         }
         catch (KeyNotFoundException e)

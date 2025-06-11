@@ -36,33 +36,33 @@ public class DeviceService : IDeviceService
         
         if(device == null) throw new KeyNotFoundException($"Device with id {id} not found");
 
-        var currentEmployee = device.DeviceEmployees.FirstOrDefault(emp => emp.ReturnDate == null);
-
         return new GetSpecificDeviceDto()
         {
-            DeviceTypeName = device.DeviceType?.Name ?? "Хуй зна",
+            Name = device.Name,
             IsEnabled = device.IsEnabled,
             AdditionalProperties = JsonDocument.Parse(device.AdditionalProperties).RootElement,
-            DeviceName = device.Name
-            // CurrentEmployee = currentEmployee is null
-            //     ? null
-            //     : new EmployeeDto()
-            //     {
-            //         Id = currentEmployee.EmployeeId,
-            //         Name =
-            //             $"{currentEmployee.Employee.Person.FirstName} {currentEmployee.Employee.Person.MiddleName} {currentEmployee.Employee.Person.LastName}"
-            //     }
-
+            Type = device.DeviceType?.Name ?? "Хуй зна",
         };
+    }
 
+    public async Task<List<GetAllDeviceTypesDto>> GetAllDeviceTypes()
+    {
+        var result = await _deviceRepository.GetDeviceTypes();
+        if (result == null) throw new KeyNotFoundException("No devices found");
+        return result.Select(x => new GetAllDeviceTypesDto()
+        {
+            Id = x.Id,
+            Name = x.Name
+        }).ToList();
+        
     }
 
     public async Task<PostPutSpecificDeviceDto> CreateDevice(PostPutSpecificDeviceDto specificDeviceDto)
     {
         var device = new Device()
         {
-            Name = specificDeviceDto.DeviceName,
-            DeviceTypeId = specificDeviceDto.DeviceTypeId,   
+            Name = specificDeviceDto.Name,
+            DeviceTypeId = specificDeviceDto.TypeId,   
             IsEnabled = specificDeviceDto.IsEnabled,
             AdditionalProperties = JsonSerializer.Serialize(specificDeviceDto.AdditionalProperties)
         };
@@ -71,10 +71,7 @@ public class DeviceService : IDeviceService
 
         return new PostPutSpecificDeviceDto()
         {
-            DeviceName = newDevice.Name,
-            DeviceTypeId = newDevice.Id,
-            IsEnabled = newDevice.IsEnabled,
-            AdditionalProperties = JsonDocument.Parse(newDevice.AdditionalProperties).RootElement,
+            Name = newDevice.Name
         };
 
     }
@@ -84,8 +81,8 @@ public class DeviceService : IDeviceService
         var device = await _deviceRepository.GetDevicesById(id);
         if (device == null) throw new KeyNotFoundException($"Device with id {id} not found");
         
-        device.Name = specificDeviceDto.DeviceName;
-        device.DeviceTypeId = specificDeviceDto.DeviceTypeId;
+        device.Name = specificDeviceDto.Name;
+        device.DeviceTypeId = specificDeviceDto.TypeId;
         device.IsEnabled = specificDeviceDto.IsEnabled;
         device.AdditionalProperties = JsonSerializer.Serialize(specificDeviceDto.AdditionalProperties);
         

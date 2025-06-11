@@ -1,6 +1,6 @@
 ﻿namespace DTO;
 
-public class PersonEmployeeDto
+public class PostPutEmployeeDto
 {
     public string PassportNumber { get; set; } = null!;
     public string FirstName { get; set; } = null!;

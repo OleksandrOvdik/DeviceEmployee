@@ -35,9 +35,16 @@ public class EmployeeRepository : IEmployeeRepository
         
     }
 
-    public async Task<List<Position>> GetAllPositions()
+    public async Task<Employee> CreateEmployee(Employee employee)
     {
-        var positions = _context.Positions.Select(p => new Position
+        _context.Employees.Add(employee);
+        await _context.SaveChangesAsync();
+        return employee;
+    }
+
+    public async Task<List<GetAllPositionsDto>> GetAllPositions()
+    {
+        var positions = _context.Positions.Select(p => new GetAllPositionsDto
         {
             Id = p.Id,
             Name = p.Name,
@@ -45,13 +52,18 @@ public class EmployeeRepository : IEmployeeRepository
         return await positions.ToListAsync();
     }
 
-    public async Task<List<Role>> GetAllRoles()
+    public async Task<List<GetAllRolesDto>> GetAllRoles()
     {
-        var roles = _context.Roles.Select(r => new Role
+        var roles = _context.Roles.Select(r => new GetAllRolesDto
         {
             Id = r.Id,
             Name = r.Name,
         });
         return await roles.ToListAsync();
+    }
+
+    public async Task<Position> GetPositionById(int id)
+    {
+        return await _context.Positions.FirstOrDefaultAsync(p => p.Id == id);
     }
 }

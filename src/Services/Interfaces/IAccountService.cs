@@ -9,7 +9,7 @@ public interface IAccountService
     
     Task<List<AllAcountsDto>> GetAllAcounts();
     
-    Task<AccountByIdDto> GetAccountById(int id);
+    Task<GetSpecificAccountDto> GetAccountById(int id);
     
     Task<UpdateViewAccountUserDto> ViewAccountUser(int userId);
     

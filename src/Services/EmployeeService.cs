@@ -39,8 +39,6 @@ public class EmployeeService : IEmployeeService
 
     public async Task<EmployeeByIdDto> GetEmployeeById(int id)
     {
-        // var PositionName = await _employeeRepository.GetPositionById(id);
-        // if (PositionName == null) throw new KeyNotFoundException("No position found");
         
         var employee = await _employeeRepository.GetEmployeeById(id);
         if (employee == null) throw new KeyNotFoundException($"Employee with id {id} not found");

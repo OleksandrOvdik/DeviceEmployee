@@ -7,6 +7,7 @@ using Models;
 using Repository;
 using Repository.Interfaces;
 using Services;
+using Services.Helpers.Middleware;
 using Services.Helpers.Options;
 using Services.Interfaces;
 using Services.Tokens;
@@ -75,5 +76,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseMiddleware<DeviceMiddleWare>();
+
 
 app.Run();

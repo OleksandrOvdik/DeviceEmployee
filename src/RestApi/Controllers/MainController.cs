@@ -321,15 +321,6 @@ public class MainController : ControllerBase
     }
     
     
-    // [HttpGet("debug/claims")]
-    // [Authorize]
-    // public IActionResult DebugClaims()
-    // {
-    //     var claimsList = User.Claims
-    //         .Select(c => new { c.Type, c.Value })
-    //         .ToList();
-    //     return Ok(claimsList);
-    // }
 
     [HttpGet("positions")]
     [Authorize(Roles = "Admin")]

@@ -24,7 +24,6 @@ namespace RestApi.Controllers;
             _logger = logger;
         }
 
-        // GET: api/Users
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
@@ -47,7 +46,6 @@ namespace RestApi.Controllers;
             }
         }
 
-        // GET: api/Users/5
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<Account>> GetAccount(int id)
@@ -108,20 +106,16 @@ namespace RestApi.Controllers;
         }
         
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> PutAccount(
-            int id,
-            [FromBody] UpdateAccountRequest dto)
+        public async Task<IActionResult> PutAccount(int id, UpdateAccountDto dto)
         {
             if (User.IsInRole("Admin"))
             {
                 try
                 {
                     _logger.LogInformation("Updating account in AccountController as Admin");   
-                    await _accountService.UpdateAccount(id, dto.AdminPart);
+                    await _accountService.UpdateAccount(id, dto);
                     return NoContent();
                 }
                 catch (KeyNotFoundException ex)
@@ -138,7 +132,7 @@ namespace RestApi.Controllers;
 
             if (User.IsInRole("User"))
             {
-                var userIdFromTokenString = User.FindFirst("employeeId")?.Value;
+                var userIdFromTokenString = User.FindFirst("accountId")?.Value;
                 if (string.IsNullOrEmpty(userIdFromTokenString) || 
                     !int.TryParse(userIdFromTokenString, out var userIdFromToken))
                 {
@@ -154,7 +148,7 @@ namespace RestApi.Controllers;
                 try
                 {
                     _logger.LogInformation("Updating account in AccountController as User");
-                    await _accountService.UpdateUserAccount(id, dto.UserPart);
+                    await _accountService.UpdateUserAccount(id, dto);
                     return NoContent();
                 }
                 catch (KeyNotFoundException ex)
@@ -173,8 +167,6 @@ namespace RestApi.Controllers;
         }
 
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Route("/api/accounts")]
         [Authorize(Roles = "Admin")]
@@ -202,7 +194,6 @@ namespace RestApi.Controllers;
             
         }
 
-        // DELETE: api/Users/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccount(int id)
@@ -219,26 +210,4 @@ namespace RestApi.Controllers;
                 return NotFound(ex.Message);
             }
         }
-
-        // private bool AccountExists(int id)
-        // {
-        //     return _context.Accounts.Any(e => e.Id == id);
-        // }
-        
-        // [HttpPost("debug/putAccountRequest")]
-        // public IActionResult DebugPutAccountRequest([FromBody] UpdateAccountRequest dto)
-        // {
-        //     if (dto == null)
-        //         return BadRequest("DTO is null");
-        //
-        //     return Ok(new 
-        //     {
-        //         adminPartIsNull = dto.AdminPart == null,
-        //         userPartIsNull  = dto.UserPart == null,
-        //         adminPart      = dto.AdminPart,
-        //         userPart       = dto.UserPart
-        //     });
-        // }
-
-        
     }

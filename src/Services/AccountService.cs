@@ -45,40 +45,7 @@ public class AccountService : IAccountService
         };
     }
 
-    // public async Task<UpdateViewAccountUserDto> ViewAccountUser(int userId)
-    // {
-    //
-    //     var account = await _accountRepository.ViewAccountUser(userId);
-    //
-    //     if (account == null) throw new KeyNotFoundException($"There are no accounts with id {userId}");
-    //     
-    //     
-    //     var employee = account.Employee!;
-    //     var person = employee.Person!;
-    //     
-    //     return new UpdateViewAccountUserDto()
-    //     {
-    //         AccountId = account.Id,
-    //         Username = account.Username,
-    //         Password = account.Password,
-    //         RoleName = account.Role.Name,
-    //
-    //         EmployeeId = employee.Id,
-    //         Salary = employee.Salary,
-    //         PositionId = employee.PositionId,
-    //         HireDate = employee.HireDate,
-    //
-    //         PersonId = person.Id,
-    //         PassportNumber = person.PassportNumber,
-    //         FirstName = person.FirstName,
-    //         MiddleName = person.MiddleName,
-    //         LastName = person.LastName,
-    //         Email = person.Email,
-    //         PhoneNumber = person.PhoneNumber,
-    //     };
-    //
-    //
-    // }
+    
 
     public async Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto)
     {
@@ -106,47 +73,30 @@ public class AccountService : IAccountService
 
     }
 
-    public async Task UpdateAccount(int id, UpdateAccountAdminDto accountAdminDto)
+    public async Task UpdateAccount(int id, UpdateAccountDto accountDto)
     {
-        var roleName = await _accountRepository.GetRoleByName(accountAdminDto.RoleName); 
-        if (roleName == null) throw new KeyNotFoundException($"Role with name {accountAdminDto.RoleName} not found");
         
         var account = await _accountRepository.GetAccountById(id);
         if (account == null) throw new KeyNotFoundException("There is no account");
         
-        var employeePassportNumber = await _accountRepository.GetEmployeeByPassportNumber(accountAdminDto.EmployeePassportNumber);
-        if (employeePassportNumber == null) throw new KeyNotFoundException($"Employee with name {accountAdminDto.EmployeePassportNumber} not found");
         
-        account.Username = accountAdminDto.Username;
-        account.Password = _passwordHasher.HashPassword(null, accountAdminDto.Password);
-        account.EmployeeId = employeePassportNumber.Id;
-        account.RoleId = roleName.Id;
+        account.Username = accountDto.Username;
+        account.Password = _passwordHasher.HashPassword(null, accountDto.Password);
+        account.EmployeeId = accountDto.EmployeeId;
+        account.RoleId = accountDto.RoleId;
         
         await _accountRepository.UpdateAccount(account);
         
     }
 
-    public async Task UpdateUserAccount(int id, UpdateViewAccountUserDto userAccountDto)
+    public async Task UpdateUserAccount(int id, UpdateAccountDto accountDto)
     {
         
         var account = await _accountRepository.GetAccountById(id);
-        if (account == null) throw new FileNotFoundException("There is no account");
+        if (account == null) throw new KeyNotFoundException("There is no account");
         
-        account.Username = userAccountDto.Username;
-        account.Password = _passwordHasher.HashPassword(null, userAccountDto.Password);
-        
-        account.EmployeeId = userAccountDto.EmployeeId;
-        account.Employee.Salary = userAccountDto.Salary;
-        account.Employee.PositionId = userAccountDto.PositionId;
-        account.Employee.HireDate = userAccountDto.HireDate;
-        
-        account.Employee.PersonId = userAccountDto.PersonId;
-        account.Employee.Person.PassportNumber = userAccountDto.PassportNumber;
-        account.Employee.Person.FirstName = userAccountDto.FirstName;
-        account.Employee.Person.MiddleName = userAccountDto.MiddleName;
-        account.Employee.Person.LastName = userAccountDto.LastName;
-        account.Employee.Person.Email = userAccountDto.Email;
-        account.Employee.Person.PhoneNumber = userAccountDto.PhoneNumber;
+        account.Username = accountDto.Username;
+        account.Password = _passwordHasher.HashPassword(null, accountDto.Password);
         
         await _accountRepository.UpdateUserAccount(account);
         

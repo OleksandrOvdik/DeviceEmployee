@@ -80,6 +80,7 @@ public class EmployeeService : IEmployeeService
         };
         
         var newEmployee = await _employeeRepository.CreateEmployee(employee);
+        if (newEmployee == null) throw new NullReferenceException("Null in newEmployee");
 
         return new PostPutSpecificEmployee()
         {

@@ -68,6 +68,7 @@ public class DeviceService : IDeviceService
         };
         
         var newDevice = await _deviceRepository.CreateDevice(device);
+        if (newDevice == null) throw new NullReferenceException("Null device");
 
         return new PostPutSpecificDeviceDto()
         {

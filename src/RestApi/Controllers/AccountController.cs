@@ -15,11 +15,13 @@ namespace RestApi.Controllers;
         private readonly IAccountService _accountService;
         private readonly PasswordHasher<Account> _passwordHasher = new (); 
         private readonly MasterContext _context;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(MasterContext context, IAccountService accountService)
+        public AccountController(MasterContext context, IAccountService accountService, ILogger<AccountController> logger)
         {
             _context = context;
             _accountService = accountService;
+            _logger = logger;
         }
 
         // GET: api/Users
@@ -29,15 +31,18 @@ namespace RestApi.Controllers;
         {
             try
             {
+                _logger.LogInformation("Getting all accounts in AccountController");
                 var accounts = await _accountService.GetAllAcounts();
                 return Ok(accounts);
             }
-            catch (FileNotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning("Account not found in AccountController");
                 return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError("Error occured while getting all accounts in AccountController");
                 return BadRequest(ex.Message);
             }
         }
@@ -51,16 +56,18 @@ namespace RestApi.Controllers;
             {
                 try
                 {
-                    
+                    _logger.LogInformation("Getting account in AccountController as Admin");
                     var result = await _accountService.GetAccountById(id);
                     return Ok(result);
                 }
                 catch (KeyNotFoundException ex)
                 {
+                    _logger.LogWarning("Account not found in AccountController");
                     return NotFound(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError("Error occured while getting account in AccountController");
                     return BadRequest(ex.Message);
                 }
             }
@@ -71,6 +78,7 @@ namespace RestApi.Controllers;
                 if (string.IsNullOrEmpty(userIdFromTokenString) || 
                     !int.TryParse(userIdFromTokenString, out var userIdFromToken))
                 {
+                    _logger.LogWarning("Error occured while getting device as User with id: {0}", userIdFromTokenString);
                     return Unauthorized("Invalid user ID claim.");
                 }
 
@@ -81,16 +89,18 @@ namespace RestApi.Controllers;
 
                 try
                 {
-                    
+                    _logger.LogInformation("Getting account in AccountController as User");
                     var result = await _accountService.GetAccountById(id);
                     return Ok(result);
                 }
                 catch (KeyNotFoundException ex)
                 {
+                    _logger.LogWarning("Account not found in AccountController");
                     return NotFound(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError("Error occured while getting account in AccountController");
                     return BadRequest(ex.Message);
                 }
             }
@@ -110,16 +120,18 @@ namespace RestApi.Controllers;
             {
                 try
                 {
-                    
+                    _logger.LogInformation("Updating account in AccountController as Admin");   
                     await _accountService.UpdateAccount(id, dto.AdminPart);
                     return NoContent();
                 }
                 catch (KeyNotFoundException ex)
                 {
+                    _logger.LogWarning("Account or role not found in AccountController");
                     return NotFound(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError("Error occured while updating account in AccountController");
                     return BadRequest(ex.Message);
                 }
             }
@@ -130,6 +142,7 @@ namespace RestApi.Controllers;
                 if (string.IsNullOrEmpty(userIdFromTokenString) || 
                     !int.TryParse(userIdFromTokenString, out var userIdFromToken))
                 {
+                    _logger.LogWarning("Error occured while getting device as User with id: {0}", userIdFromTokenString);
                     return Unauthorized("Invalid user ID claim.");
                 }
 
@@ -140,16 +153,18 @@ namespace RestApi.Controllers;
 
                 try
                 {
-                    
+                    _logger.LogInformation("Updating account in AccountController as User");
                     await _accountService.UpdateUserAccount(id, dto.UserPart);
                     return NoContent();
                 }
                 catch (KeyNotFoundException ex)
                 {
+                    _logger.LogWarning("Account or role not found in AccountController");
                     return NotFound(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError("Error occured while updating account in AccountController");
                     return BadRequest(ex.Message);
                 }
             }
@@ -167,23 +182,19 @@ namespace RestApi.Controllers;
         {
             try
             {
+                _logger.LogInformation("Creating new account in AccountController");
                 var result = await _accountService.CreateAccount(newAccount);
                 return Ok(result);
             }
-            catch (KeyNotFoundException e)
+            catch (NullReferenceException e)
             {
+                _logger.LogWarning("Account has null");
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
-                var message = e.Message;
-                var inner = e.InnerException;
-                while (inner != null)
-                {
-                    message += " | " + inner.Message;
-                    inner = inner.InnerException;
-                }
-                return BadRequest(message);
+                _logger.LogError("Error occured while creating new account");
+                return BadRequest();
             }
             
             
@@ -198,34 +209,36 @@ namespace RestApi.Controllers;
         {
             try
             {
+                _logger.LogInformation("Deleting account in AccountController");
                 await _accountService.DeleteAccount(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning("Account not found in AccountController");
                 return NotFound(ex.Message);
             }
         }
 
-        private bool AccountExists(int id)
-        {
-            return _context.Accounts.Any(e => e.Id == id);
-        }
+        // private bool AccountExists(int id)
+        // {
+        //     return _context.Accounts.Any(e => e.Id == id);
+        // }
         
-        [HttpPost("debug/putAccountRequest")]
-        public IActionResult DebugPutAccountRequest([FromBody] UpdateAccountRequest dto)
-        {
-            if (dto == null)
-                return BadRequest("DTO is null");
-
-            return Ok(new 
-            {
-                adminPartIsNull = dto.AdminPart == null,
-                userPartIsNull  = dto.UserPart == null,
-                adminPart      = dto.AdminPart,
-                userPart       = dto.UserPart
-            });
-        }
+        // [HttpPost("debug/putAccountRequest")]
+        // public IActionResult DebugPutAccountRequest([FromBody] UpdateAccountRequest dto)
+        // {
+        //     if (dto == null)
+        //         return BadRequest("DTO is null");
+        //
+        //     return Ok(new 
+        //     {
+        //         adminPartIsNull = dto.AdminPart == null,
+        //         userPartIsNull  = dto.UserPart == null,
+        //         adminPart      = dto.AdminPart,
+        //         userPart       = dto.UserPart
+        //     });
+        // }
 
         
     }

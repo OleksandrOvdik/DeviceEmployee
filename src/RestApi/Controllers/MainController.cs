@@ -31,14 +31,17 @@ public class MainController : ControllerBase
         try
         {
             var devices = await _deviceService.GetDevices();
+            _logger.LogInformation("Called Get devices endpoint in MainController");
             return Ok(devices);
         }
-        catch(FileNotFoundException)
+        catch(FileNotFoundException ex)
         {
+            _logger.LogWarning(ex, "User do not get an information: {0},", ex.Message);
             return NotFound();
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while getting devices endpoint: {0}", e.Message);
             return BadRequest(e.Message);
         }
     }
@@ -54,14 +57,17 @@ public class MainController : ControllerBase
             try
             {
                 var result = await _deviceService.GetDevicesById(id);
+                _logger.LogInformation("Called Get devices endpoint in MainController as Admin");
                 return Ok(result);
             }
             catch (KeyNotFoundException e)
             {
+                _logger.LogWarning(e, "Device with id {id} not found", id);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Error occured while getting device as Admin with id: {0}", e.Message);
                 return BadRequest(e.Message);
             }
         }
@@ -72,6 +78,7 @@ public class MainController : ControllerBase
             if (string.IsNullOrEmpty(userIdFromTokenString) || 
                 !int.TryParse(userIdFromTokenString, out var userIdFromToken))
             {
+                _logger.LogWarning("Error occured while getting device as User with id: {0}", userIdFromTokenString);
                 return Unauthorized("Invalid user ID claim.");
             }
 
@@ -85,14 +92,17 @@ public class MainController : ControllerBase
             try
             {
                 var result = await _deviceService.GetDevicesById(id);
+                _logger.LogInformation("Called Get devices by id endpoint in MainController as User");
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning(ex, "Device with id {id} not found", id);
                 return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occured while getting device as User with id: {0}", id);
                 return BadRequest(ex.Message);
             }
         }
@@ -107,15 +117,18 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called CreateDevice endpoint in MainController");
             await _deviceService.CreateDevice(specificDeviceDto);
             return NoContent();
         }
-        catch (KeyNotFoundException e)
+        catch (NullReferenceException e)
         {
+            _logger.LogError("Error occured, because of null in device {specificDeviceDto}", specificDeviceDto);
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while adding new device to MainController");
             return BadRequest(e.Message);
         }
     }
@@ -129,15 +142,18 @@ public class MainController : ControllerBase
         {
             try
             {
+                _logger.LogInformation("Called Update device endpoint in MainController as Admin");
                 await _deviceService.UpdateDevice(id, specificDeviceDto);
                 return NoContent();
             }
             catch (KeyNotFoundException e)
             {
+                _logger.LogWarning(e, "Device with id {id} not found", id);
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Error occured while updating new device to MainController");
                 return BadRequest(e.Message);
             }
         }
@@ -148,6 +164,7 @@ public class MainController : ControllerBase
             if (string.IsNullOrEmpty(userIdFromTokenString) || 
                 !int.TryParse(userIdFromTokenString, out var userIdFromToken))
             {
+                _logger.LogWarning("Error occured while getting device as User with id: {0}", userIdFromTokenString);
                 return Unauthorized("Invalid user ID claim.");
             }
 
@@ -160,15 +177,18 @@ public class MainController : ControllerBase
 
             try
             {
+                _logger.LogInformation("Called Update device endpoint in MainController as User");
                 await _deviceService.UpdateDevice(id, specificDeviceDto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning(ex, "Device with id {id} not found", id);
                 return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error occured while updating device to MainController");
                 return BadRequest(ex.Message);
             }
         }
@@ -181,11 +201,13 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called Delete device endpoint in MainController");
             await _deviceService.DeleteDevice(id);
             return NoContent();
         }
         catch (KeyNotFoundException)
         {
+            _logger.LogWarning("Device with id {id} not found", id);
             return NotFound();
         }
     }
@@ -198,15 +220,18 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called GetEmployees endpoint in MainController");
             var employees = await _employeeService.GetAllEmployees();
             return Ok(employees);
         }
         catch (KeyNotFoundException e)
         {
+            _logger.LogWarning(e, "Employee not found in MainController");
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while getting all employees");
             return NotFound(e.Message);
         }
     }
@@ -221,18 +246,20 @@ public class MainController : ControllerBase
 
         if (User.IsInRole("Admin"))
         {
-
             try
             {
+                _logger.LogInformation("Called GetEmployee endpoint in MainController as Admin");
                 var result = await _employeeService.GetEmployeeById(id);
                 return Ok(result);
             }
             catch (KeyNotFoundException e)
             {
+                _logger.LogWarning(e, "Employee not found in MainController");
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Error occured while getting employee from MainController");
                 return BadRequest(e.Message);
             }
             
@@ -246,21 +273,25 @@ public class MainController : ControllerBase
                 if (string.IsNullOrEmpty(userIdFromTokenString) || 
                     !int.TryParse(userIdFromTokenString, out var userIdFromToken))
                 {
+                    _logger.LogWarning("Error occured while getting device as User with id: {0}", userIdFromTokenString);
                     return Unauthorized("Invalid user ID claim.");
                 }
 
                 if (userIdFromToken != id)
                     return Forbid();     
-
+                
+                _logger.LogInformation("Called GetEmployee endpoint in MainController as User");
                 var employeeDto = await _employeeService.GetEmployeeById(id);
                 return Ok(employeeDto);
             }
             catch (KeyNotFoundException e)
             {
+                _logger.LogWarning(e, "Employee not found in MainController");
                 return NotFound(e.Message);
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Error occured while getting employee from MainController");
                 return BadRequest(e.Message);
             }
         }
@@ -273,36 +304,32 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called PostEmployee endpoint in MainController");
             var result = await _employeeService.CreateEmployee(newEmployee);
             return Ok(result);
         }
-        catch (KeyNotFoundException e)
+        catch (NullReferenceException e)
         {
+            _logger.LogWarning(e, "Employee null in MainController");
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
-            var message = e.Message;
-            var inner = e.InnerException;
-            while (inner != null)
-            {
-                message += " | " + inner.Message;
-                inner = inner.InnerException;
-            }
-            return BadRequest(message);
+            _logger.LogError(e, "Error occured while posting employee to MainController");
+            return BadRequest();
         }
     }
     
     
-    [HttpGet("debug/claims")]
-    [Authorize]
-    public IActionResult DebugClaims()
-    {
-        var claimsList = User.Claims
-            .Select(c => new { c.Type, c.Value })
-            .ToList();
-        return Ok(claimsList);
-    }
+    // [HttpGet("debug/claims")]
+    // [Authorize]
+    // public IActionResult DebugClaims()
+    // {
+    //     var claimsList = User.Claims
+    //         .Select(c => new { c.Type, c.Value })
+    //         .ToList();
+    //     return Ok(claimsList);
+    // }
 
     [HttpGet("positions")]
     [Authorize(Roles = "Admin")]
@@ -310,15 +337,18 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called GetPositions endpoint in MainController");
             var result = await _employeeService.GetAllPositions();
             return Ok(result);
         }
         catch (KeyNotFoundException e)
         {
+            _logger.LogWarning(e, "Employee not found in MainController");
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while getting all positions");
             return BadRequest(e.Message);
         }
     }
@@ -329,15 +359,18 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called GetRoles endpoint in MainController");
             var result = await _employeeService.GetAllRoles();
             return Ok(result);
         }
         catch (KeyNotFoundException e)
         {
+            _logger.LogWarning(e, "Employee not found in MainController");
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while getting all roles");
             return BadRequest(e.Message);
         }
     }
@@ -348,15 +381,18 @@ public class MainController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Called GetDeviceTypes endpoint in MainController");
             var result = await _deviceService.GetAllDeviceTypes();
             return Ok(result);
         }
         catch (KeyNotFoundException e)
         {
+            _logger.LogWarning(e, "Employee not found in MainController");
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "Error occured while getting all device");
             return BadRequest(e.Message);
         }
     }

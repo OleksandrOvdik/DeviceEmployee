@@ -14,6 +14,10 @@ using Services.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found");
 
 builder.Services.AddDbContext<MasterContext>(options => options.UseSqlServer(connectionString));

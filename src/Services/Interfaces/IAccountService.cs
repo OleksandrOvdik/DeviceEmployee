@@ -11,7 +11,7 @@ public interface IAccountService
     
     Task<GetSpecificAccountDto> GetAccountById(int id);
     
-    Task<UpdateViewAccountUserDto> ViewAccountUser(int userId);
+    // Task<UpdateViewAccountUserDto> ViewAccountUser(int userId);
     
     
     Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto);

@@ -23,7 +23,7 @@ public class AccountService : IAccountService
     {
 
         var result = await _accountRepository.GetAllAccounts();
-        if (result == null) throw new FileNotFoundException("There are no accounts");
+        if (result == null) throw new KeyNotFoundException("There are no accounts");
         
         return result.Select(account => new AllAcountsDto
         {
@@ -36,7 +36,7 @@ public class AccountService : IAccountService
     public async Task<GetSpecificAccountDto> GetAccountById(int id)
     {
         var account = await _accountRepository.GetAccountById(id);
-        if (account == null) throw new FileNotFoundException("There are no accounts");
+        if (account == null) throw new KeyNotFoundException("There are no accounts");
 
         return new GetSpecificAccountDto()
         {
@@ -45,40 +45,40 @@ public class AccountService : IAccountService
         };
     }
 
-    public async Task<UpdateViewAccountUserDto> ViewAccountUser(int userId)
-    {
-    
-        var account = await _accountRepository.ViewAccountUser(userId);
-    
-        if (account == null) throw new KeyNotFoundException($"There are no accounts with id {userId}");
-        
-        
-        var employee = account.Employee!;
-        var person = employee.Person!;
-        
-        return new UpdateViewAccountUserDto()
-        {
-            AccountId = account.Id,
-            Username = account.Username,
-            Password = account.Password,
-            RoleName = account.Role.Name,
-    
-            EmployeeId = employee.Id,
-            Salary = employee.Salary,
-            PositionId = employee.PositionId,
-            HireDate = employee.HireDate,
-    
-            PersonId = person.Id,
-            PassportNumber = person.PassportNumber,
-            FirstName = person.FirstName,
-            MiddleName = person.MiddleName,
-            LastName = person.LastName,
-            Email = person.Email,
-            PhoneNumber = person.PhoneNumber,
-        };
-    
-    
-    }
+    // public async Task<UpdateViewAccountUserDto> ViewAccountUser(int userId)
+    // {
+    //
+    //     var account = await _accountRepository.ViewAccountUser(userId);
+    //
+    //     if (account == null) throw new KeyNotFoundException($"There are no accounts with id {userId}");
+    //     
+    //     
+    //     var employee = account.Employee!;
+    //     var person = employee.Person!;
+    //     
+    //     return new UpdateViewAccountUserDto()
+    //     {
+    //         AccountId = account.Id,
+    //         Username = account.Username,
+    //         Password = account.Password,
+    //         RoleName = account.Role.Name,
+    //
+    //         EmployeeId = employee.Id,
+    //         Salary = employee.Salary,
+    //         PositionId = employee.PositionId,
+    //         HireDate = employee.HireDate,
+    //
+    //         PersonId = person.Id,
+    //         PassportNumber = person.PassportNumber,
+    //         FirstName = person.FirstName,
+    //         MiddleName = person.MiddleName,
+    //         LastName = person.LastName,
+    //         Email = person.Email,
+    //         PhoneNumber = person.PhoneNumber,
+    //     };
+    //
+    //
+    // }
 
     public async Task<CreateAccountDto> CreateAccount(CreateAccountDto accountDto)
     {
@@ -93,6 +93,7 @@ public class AccountService : IAccountService
 
 
         var newAccount = await _accountRepository.CreateAccount(account);
+        if (newAccount == null) throw new NullReferenceException("There are no accounts");
         
 
         return new CreateAccountDto()
@@ -111,7 +112,7 @@ public class AccountService : IAccountService
         if (roleName == null) throw new KeyNotFoundException($"Role with name {accountAdminDto.RoleName} not found");
         
         var account = await _accountRepository.GetAccountById(id);
-        if (account == null) throw new FileNotFoundException("There is no account");
+        if (account == null) throw new KeyNotFoundException("There is no account");
         
         var employeePassportNumber = await _accountRepository.GetEmployeeByPassportNumber(accountAdminDto.EmployeePassportNumber);
         if (employeePassportNumber == null) throw new KeyNotFoundException($"Employee with name {accountAdminDto.EmployeePassportNumber} not found");
